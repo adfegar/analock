@@ -204,7 +204,7 @@ export function Game2048() {
   function performRowMove(row: number[], direction: Direction): BoardMoveStatus {
     const positive = direction == 'down' || direction == 'right'
     let updatedRow = row.filter(value => value > 0)
-    const moveStatus = {
+    const moveStatus: BoardMoveStatus = {
       updatedRow: row,
       moveScore: 0,
       moved: false,

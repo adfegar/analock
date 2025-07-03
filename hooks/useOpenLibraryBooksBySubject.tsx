@@ -22,7 +22,7 @@ export function useOpenLibraryBooksBySubject(
   useEffect(() => {
     const selectedBooks = getSelectedBooks();
 
-    if (selectedBooks) {
+    if (selectedBooks.length > 0) {
       setOpenLibraryBooksBySubject(selectedBooks);
     } else {
       getOpenLibraryBooksBySubject(params)

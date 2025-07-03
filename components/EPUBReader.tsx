@@ -34,7 +34,7 @@ export interface BookStorageData {
 }
 
 let firstFileIndex = -1;
-let MAX_PAGES = 0;
+let maxPages = 0;
 const AVERAGE_WORDS_PER_MINUTE = 200;
 const MAX_MINUTES = 20;
 const START_HTML_FILE_PAGE = 1;
@@ -64,19 +64,19 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
       // if not, then generate the params and save them to local storage.
       if (bookData) {
         firstFileIndex = bookData.firstPageIndex;
-        MAX_PAGES = bookData.maxPages;
+        maxPages = bookData.maxPages;
         setCurrentFilePage(bookData.currentPage);
         setHasFinishedReading(bookData.finished);
         loadFullHtmlContent();
       } else {
-        const randomIndex = Math.floor(Math.random() * (htmlFiles.length - 20));
+        const randomIndex = Math.floor(Math.random() * (htmlFiles.length - 5));
         firstFileIndex = randomIndex;
         loadFullHtmlContent()
           .then(() => {
             updateStorageBookData({
               id: ebookId,
               data: {
-                maxPages: MAX_PAGES,
+                maxPages: maxPages,
                 firstPageIndex: firstFileIndex,
                 currentPage: START_HTML_FILE_PAGE,
                 finished: hasFinishedReading,
@@ -146,8 +146,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     // Iterate over all remaining html files
     for (let i = firstFileIndex; i < htmlFiles.length; i++) {
       const selectedItem = htmlFiles[i];
-
-      // Add file content to body (if file exists)
+      // Add file content to body if file exists
       const doesHtmlFileExist = await RNFS.exists(`${unzipPath}/${contentPath}${selectedItem.href}`)
       if (doesHtmlFileExist) {
         const content = await RNFS.readFile(
@@ -167,7 +166,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
 
         // Stop iterating when reached maximum words
         if (currentWords < maxWords) {
-          MAX_PAGES++;
+          maxPages++;
         } else {
           break;
         }
@@ -231,7 +230,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     return html.replace(
       "</body>",
       `\n <script>
-          // NAVIGATION
           const contentElement = document.body;
           const viewportWidth = ${dimensions.width * 0.95};
           let totalPages = 1;
