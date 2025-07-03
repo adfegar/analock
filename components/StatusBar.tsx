@@ -33,7 +33,7 @@ export const StatusBar: React.FC<StatusBarProperties> = ({ isHomeFocused, wiped 
     if (isHomeFocused || wiped) {
       const bookData = getStorageBooks();
       const gameData = getStorageGamesData();
-      if (bookData) {
+      if (bookData.length > 0) {
         setBooksCompleted(bookData.every(storageBook => storageBook.data && storageBook.data.finished))
       }
       if (gameData) {

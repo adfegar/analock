@@ -6,8 +6,7 @@ import { useContext, useEffect, useState } from "react";
 import { Login } from "./Login";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useWipePeriodicContent } from "../hooks/useWipePeriodicContent";
-import { getStorageUserData } from "../services/storage.services";
-import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import { getStorageUserData, setStorageUserData } from "../services/storage.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
 import { DiaryIcon } from "./icons/DiaryIcon";
@@ -54,6 +53,7 @@ const Home: React.FC = () => {
       Icon: GamesIcon,
     },
   ];
+
   // hook to handle back button press
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(

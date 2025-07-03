@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import {
-  deleteSelectedBooks,
-  deleteStorageBookData,
   deleteStorageGamesData,
+  getSelectedBooks,
   getStorageBooks,
   getStorageUserData,
+  setSelectedBooks,
+  setStorageBook,
   setStorageUserData,
   updateStorageBookData,
 } from "../services/storage.services";
@@ -14,6 +15,8 @@ import {
   timestampToDate,
 } from "../utils/date.utils";
 import { SettingsContext } from "../contexts/settingsContext";
+import RNFS from "react-native-fs";
+import { APP_DOCUMENTS_PATH } from "../services/download.services";
 
 // hook to handle daily and weekly content wipes
 export function useWipePeriodicContent(): boolean {
@@ -58,8 +61,21 @@ export function useWipePeriodicContent(): boolean {
 
         if (weeklyWipe) {
           console.log("performing weekly wipe...");
-          deleteSelectedBooks();
-          deleteStorageBookData()
+          // delete selected subject
+          delete userData.selectedBookSubject
+          // delete EPUB files
+          const selectedBooks = getSelectedBooks()
+          for (const book of selectedBooks) {
+            RNFS.exists(`${APP_DOCUMENTS_PATH}/${book.identifier}`)
+              .then(() => {
+                RNFS.unlink(`${APP_DOCUMENTS_PATH}/${book.identifier}`)
+                  .then(() => console.log(`deleted ${book.identifier} on weekly wipe`))
+                  .catch((err) => console.error(`error removing EPUB on weekly wipe: ${err}`))
+              })
+          }
+          // delete selected books and selected books data from storage
+          setSelectedBooks([])
+          setStorageBook([])
         }
       }
 

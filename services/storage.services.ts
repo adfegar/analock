@@ -103,8 +103,8 @@ export function setStorageAuthData(authData: StorageAuthData): void {
  *
  * @returns the stored selected books
  */
-export function getSelectedBooks(): InternetArchiveBook[] | undefined {
-  let selectedBooks: InternetArchiveBook[] | undefined;
+export function getSelectedBooks(): InternetArchiveBook[] {
+  let selectedBooks: InternetArchiveBook[] = [];
   const selectedBooksString = storageInstance.getString(BOOKS_STORAGE_KEY);
 
   if (selectedBooksString) {
@@ -123,12 +123,6 @@ export function setSelectedBooks(selectedBooks: InternetArchiveBook[]): void {
   storageInstance.set(BOOKS_STORAGE_KEY, JSON.stringify(selectedBooks));
 }
 
-/**
- * Deletes the selected books from local storage.
- */
-export function deleteSelectedBooks(): void {
-  storageInstance.delete(BOOKS_STORAGE_KEY);
-}
 
 // BOOK DATA FUNCTIONS
 
@@ -137,8 +131,8 @@ export function deleteSelectedBooks(): void {
  *
  * @returns the stored book data or undefined, if no data was stored
  */
-export function getStorageBooks(): StorageBook[] | undefined {
-  let books: StorageBook[] | undefined;
+export function getStorageBooks(): StorageBook[] {
+  let books: StorageBook[] = [];
   const bookString = storageInstance.getString(BOOKS_DATA_STORAGE_KEY);
 
   if (bookString) {
@@ -195,12 +189,6 @@ export function setStorageBook(books: StorageBook[]): void {
   storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books));
 }
 
-/**
- * Deletes all books' data from local storage
- */
-export function deleteStorageBookData(): void {
-  storageInstance.delete(BOOKS_DATA_STORAGE_KEY);
-}
 
 // GAME STORAGE
 
