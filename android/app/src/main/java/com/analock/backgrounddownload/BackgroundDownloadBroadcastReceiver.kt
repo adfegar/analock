@@ -37,6 +37,7 @@ class BackgroundDownloadBroadcastReceiver(
                             promise?.resolve(filePath)
                         }
                         DownloadManager.STATUS_FAILED -> {
+                            Log.d("BackgroundDownloadModule", "Download failed(${cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))})")
                             promise?.reject(E_DOWNLOAD_FAILED, "Download failed(${cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))})")
                         }
                     }

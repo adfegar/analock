@@ -2,5 +2,5 @@
 ## License
 This project is licensed under the `Attribution-NonCommercial 4.0 International`
 license.
-- This project is open-source can use, modify, and share the code for non-commercial purposes.
-- You cannot distribute this software commercially without explicit permission.
+- This project is open-source. Feel free to use, modify, and share the code for non-commercial purposes.
+- You cannot distribute this software and/or its assets commercially without explicit permission.

@@ -9,8 +9,8 @@ import axios from "axios";
 export async function getOpenLibraryBooksBySubject(
   req: OpenLibraryRequest,
 ): Promise<InternetArchiveBook[]> {
-  const GET_BOOKS_QUERY = `https://archive.org/advancedsearch.php?q=collection:opensource+AND+language:english+AND+subject:${encodeURIComponent(req.subject)}+AND+mediatype:texts&fl=title,creator,identifier&sort[]=downloads+desc&sort[]=avg_rating+desc&rows=${req.limit}&page=1&output=json`;
-  let books: InternetArchiveBook[] = [];
+  const GET_BOOKS_QUERY = `https://archive.org/advancedsearch.php?q=collection:opensource+AND+language:english+AND+subject:${encodeURIComponent(req.subject)}+AND+mediatype:texts&fl=title,creator,identifier&sort[]=downloads+desc&sort[]=avg_rating+desc&rows=${req.limit + 10}&page=1&output=json`;
+  const selectedBooks: InternetArchiveBook[] = [];
 
   try {
     const booksResponse = await axios({
@@ -19,19 +19,25 @@ export async function getOpenLibraryBooksBySubject(
       responseType: "json",
     });
     const res = booksResponse.data.response as OpenLibraryResponse;
-    books = res.docs;
+    const internetArchiveResponseBooks = res.docs;
 
-    for (const book of books) {
+    for (const book of internetArchiveResponseBooks) {
+      if (selectedBooks.length === req.limit) break
+
       const bookMetadata = await getBookMetadata({ id: book.identifier });
       book.epubFile = bookMetadata?.files.find(
         (file) => file.format === "EPUB",
       )?.name;
+
+      if (book.epubFile) {
+        selectedBooks.push(book)
+      }
     }
   } catch {
     throw Error("Error retrieving books from open library API");
   }
 
-  return books;
+  return selectedBooks;
 }
 
 /**
