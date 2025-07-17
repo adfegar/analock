@@ -61,6 +61,7 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
             style={[
               GENERAL_STYLES.uiText,
               GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
               GENERAL_STYLES.generalPadding,
               GENERAL_STYLES.textBlack,
               GENERAL_STYLES.textTitle,
@@ -82,6 +83,7 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
               GENERAL_STYLES.uiText,
               GENERAL_STYLES.textBlack,
               GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
               GENERAL_STYLES.flexGrow,
               GENERAL_STYLES.generalPadding,
             ]}

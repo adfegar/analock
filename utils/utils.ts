@@ -1,3 +1,5 @@
+import { colorGreen, colorPink, colorPurple } from "../constants/constants"
+
 /**
  * Gets a randomly generated number that is inside the given interval (inclusive) 
  * 
@@ -30,5 +32,21 @@ export function getMatrixColumn(matrix: any[][], columnIndex: number): any[] {
 export function setMatrixColumn(matrix: any[][], updatedColumn: any[], columnIndex: number): void {
     for (let i = 0; i < matrix.length; i++) {
         matrix[i][columnIndex] = updatedColumn[i]
+    }
+}
+
+/**
+ * Gets the color of given activity index.
+ * 
+ * @param index the index
+ * @returns the color string 
+ */
+export function getActivityColorFromIndex(index: number): string {
+    if (index === 0) {
+        return colorPurple
+    } else if (index === 2) {
+        return colorGreen
+    } else {
+        return colorPink
     }
 }

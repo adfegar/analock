@@ -561,7 +561,7 @@
         {
           "name": "--terminal <string>",
           "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
-          "default": "xterm-kitty"
+          "default": "xterm-256color"
         },
         {
           "name": "--binary-path <string>",
@@ -721,7 +721,7 @@
         {
           "name": "--terminal <string>",
           "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
-          "default": "xterm-kitty"
+          "default": "xterm-256color"
         },
         {
           "name": "--appId <string>",

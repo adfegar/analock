@@ -348,6 +348,7 @@ export function setSettings(settings: SettingsData): void {
  */
 function loadDefaultSettings(): SettingsData {
   const deviceLocale = getLocales()[0];
+  const localeFirstDayOfWeek = localeFirstDayOfWeekMap.get(deviceLocale.languageTag)
 
   const defaultSettings: SettingsData = {
     general: {
@@ -360,8 +361,8 @@ function loadDefaultSettings(): SettingsData {
     },
     preferences: {
       firstDayOfWeek:
-        deviceLocale && localeFirstDayOfWeekMap[deviceLocale.languageTag]
-          ? localeFirstDayOfWeekMap[deviceLocale.languageTag]
+        deviceLocale && localeFirstDayOfWeek
+          ? localeFirstDayOfWeek
           : DAY_OF_WEEK_SUNDAY,
     },
   };

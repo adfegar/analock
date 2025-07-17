@@ -8,7 +8,7 @@ export const GameWon: React.FC = () => {
   const gamesTranslations = useContext(TranslationsContext)?.translations.games;
   return (
     <BaseScreen>
-      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitleBig]}>
+      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textTitleBig]}>
         {gamesTranslations?.won}
       </Text>
     </BaseScreen>

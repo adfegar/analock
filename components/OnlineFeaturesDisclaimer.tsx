@@ -9,7 +9,7 @@ export const OnlineFeaturesDisclaimer: React.FC = () => {
     useContext(TranslationsContext)?.translations.general;
   return (
     <BaseScreen>
-      <Text style={[GENERAL_STYLES.uiText]}>
+      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
         {generalTranslations?.onlineFeaturesDisclaimer}
       </Text>
     </BaseScreen>

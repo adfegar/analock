@@ -1,7 +1,10 @@
-export const GameDetailScreen: React.FC = ({route}) => {
-  const {component} = route.params
+import { RouteProp } from '@react-navigation/native';
+import type { GameStackParamList } from './Games';
 
-  return component as React.JSX.Element
+export const GameDetailScreen = (props: any) => {
+  const route = props.route as RouteProp<GameStackParamList, 'Game'>;
+  const { component: Component } = route.params;
+  return <Component />;
 }
 
 export default GameDetailScreen

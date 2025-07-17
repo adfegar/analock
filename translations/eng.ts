@@ -30,9 +30,11 @@ export const englishTranslations: Translation = {
   books: {
     donwloadingContent:
       "We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar.",
+    noAuthor: "No author"
   },
   games: {
     won: "You won!\nCome tommorrow and play again!",
+    score: "Score"
   },
   diary: {
     add: "Add",

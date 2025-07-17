@@ -1,12 +1,25 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SudokuGame } from "./Sudoku";
-import { GameCard } from "./GameCard";
 import GameDetailScreen from "./Game";
 import { Game2048 } from "./2048Game";
-import { BaseScreen } from "./BaseScreen";
 import { useContext } from "react";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { NavigationHeader } from "./NavigationHeader";
+import { FlatList, Text, View } from "react-native";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { FlatListCard } from "./FlatListCard";
+import { useNavigation } from "@react-navigation/native";
+import { GamesIcon } from "./icons/GamesIcon";
+
+interface Game {
+  name: string;
+  component: React.ComponentType<any>;
+}
+
+export type GameStackParamList = {
+  Games: undefined;
+  Game: { name: string; component: React.ComponentType<any> };
+};
 
 const GamesScreen = () => {
   const GamesStack = createNativeStackNavigator();
@@ -14,46 +27,80 @@ const GamesScreen = () => {
   return (
     <GamesStack.Navigator
       initialRouteName="Games"
-      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
     >
       <GamesStack.Screen
         name="Games"
         component={Games}
-        options={{ headerTitle: translations?.home.games }}
+        options={{
+          headerTitle: translations?.home.games,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+        }}
       />
       <GamesStack.Screen
         name="Game"
         component={GameDetailScreen}
         options={({ route }) => ({
           headerTitle: route.params?.name as string,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
         })}
       />
     </GamesStack.Navigator>
   );
 };
 
-interface Game {
-  name: string;
-  component: React.JSX.Element;
-}
 
 const Games: React.FC = () => {
   const games: Game[] = [
     {
       name: "Sudoku",
-      component: <SudokuGame />,
+      component: SudokuGame,
     },
     {
       name: "2048",
-      component: <Game2048 />,
+      component: Game2048,
     },
   ];
+
+  const navigation = useNavigation<NativeStackNavigationProp<GameStackParamList>>();
   return (
-    <BaseScreen>
-      {games.map((game) => (
-        <GameCard name={game.name} component={game.component} key={game.name} />
-      ))}
-    </BaseScreen>
+    <FlatList
+      numColumns={2}
+      data={games}
+      keyExtractor={(game) => game.name}
+      renderItem={({ item, index }) => (
+        <FlatListCard
+          flatListIndex={index}
+          onPress={() => {
+            navigation.push(
+              "Game",
+              {
+                name: item.name,
+                component: item.component
+              }
+            );
+          }}
+        >
+          <View style={[
+            GENERAL_STYLES.defaultBorder,
+            GENERAL_STYLES.defaultBorderWidth,
+            GENERAL_STYLES.alignCenter,
+            GENERAL_STYLES.borderRadiusBig,
+            GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding
+          ]}>
+            <GamesIcon />
+          </View>
+          <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textCenter]}>
+            {item.name}
+          </Text>
+        </FlatListCard>
+      )}
+      contentContainerStyle={[
+        GENERAL_STYLES.baseScreenPadding,
+        GENERAL_STYLES.whiteBackgroundColor,
+        GENERAL_STYLES.flexGrow
+      ]}
+      removeClippedSubviews={false}
+    />
   );
 };
 
