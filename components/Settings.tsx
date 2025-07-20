@@ -58,7 +58,6 @@ function Settings() {
   ];
 
   const userSettings = getSettings();
-  console.log(userSettings)
   const [areOnlineFeaturesEnabled, setAreOnlineFeaturesEnabled] =
     useState<boolean>(userSettings.general.enableOnlineFeatures);
   const [selectedLanguage, setSelectedLanguage] = useState<number>(
@@ -76,6 +75,9 @@ function Settings() {
       (fontFamily) => fontFamily.value === userSettings.bookReader.fontFamily,
     ),
   );
+  console.log(`current settings: ${userSettings}`)
+
+  // save selected settings when user exits section or app
   useSaveOnExit({
     general: {
       enableOnlineFeatures: areOnlineFeaturesEnabled,
@@ -90,6 +92,7 @@ function Settings() {
     },
   });
 
+  // hook to load translations for selected language
   useEffect(() => {
     translationsContext?.setTranslations(
       getTranslations(
@@ -100,45 +103,55 @@ function Settings() {
 
   return (
     <BaseScreen>
-      <View style={[{ marginBottom: 30 }]}>
-        <Text
-          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
-        >
-          {settingsTranslations?.general}
-        </Text>
-        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
-          <CustomSwitch
-            label={settingsTranslations?.onlineFeatures}
-            isEnabled={areOnlineFeaturesEnabled}
-            setIsEnabled={setAreOnlineFeaturesEnabled}
-          />
-          <ButtonGroup
-            label={settingsTranslations?.language}
-            buttons={languageRadioGroup}
-            selectedIndex={selectedLanguage}
-            setSelectedIndex={setSelectedLanguage}
-          />
+      <View style={[GENERAL_STYLES.flexGapBig]}>
+        <View style={[GENERAL_STYLES.flexGapSmall]}>
+          <Text
+            style={[
+              GENERAL_STYLES.uiText,
+              GENERAL_STYLES.textBlack,
+              GENERAL_STYLES.textExtraBig
+            ]}
+          >
+            {settingsTranslations?.general}
+          </Text>
+          <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+            <CustomSwitch
+              label={settingsTranslations?.onlineFeatures}
+              isEnabled={areOnlineFeaturesEnabled}
+              setIsEnabled={setAreOnlineFeaturesEnabled}
+            />
+            <ButtonGroup
+              label={settingsTranslations?.language}
+              buttons={languageRadioGroup}
+              selectedIndex={selectedLanguage}
+              setSelectedIndex={setSelectedLanguage}
+            />
+          </View>
         </View>
-      </View>
-      <View style={[{ marginBottom: 30 }]}>
-        <Text
-          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
-        >
-          {settingsTranslations?.bookReader}
-        </Text>
-        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
-          <ButtonGroup
-            label={settingsTranslations?.textSize}
-            buttons={fontSizeRadioGroup}
-            selectedIndex={selectedFontSize}
-            setSelectedIndex={setSelectedFontSize}
-          />
-          <ButtonGroup
-            label={settingsTranslations?.textFont}
-            buttons={fontFamilyRadioGroup}
-            selectedIndex={selectedFontFamily}
-            setSelectedIndex={setSelectedFontFamily}
-          />
+        <View style={[GENERAL_STYLES.flexGapSmall]}>
+          <Text
+            style={[
+              GENERAL_STYLES.uiText,
+              GENERAL_STYLES.textBlack,
+              GENERAL_STYLES.textExtraBig
+            ]}
+          >
+            {settingsTranslations?.bookReader}
+          </Text>
+          <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+            <ButtonGroup
+              label={settingsTranslations?.textSize}
+              buttons={fontSizeRadioGroup}
+              selectedIndex={selectedFontSize}
+              setSelectedIndex={setSelectedFontSize}
+            />
+            <ButtonGroup
+              label={settingsTranslations?.textFont}
+              buttons={fontFamilyRadioGroup}
+              selectedIndex={selectedFontFamily}
+              setSelectedIndex={setSelectedFontFamily}
+            />
+          </View>
         </View>
       </View>
     </BaseScreen>

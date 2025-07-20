@@ -1,8 +1,7 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet, useWindowDimensions } from "react-native";
+import { colorBlack, colorGray, colorWhite, colorWhiteBackground } from "./constants";
 
-export const grayColor = "#343233"
-export const whiteColor = "#D9D9D9"
-export const whiteBackgroundColor = "#E5E1DE"
+const { width, height } = Dimensions.get("window")
 
 export const GENERAL_STYLES = StyleSheet.create({
   baseScreenPadding: {
@@ -15,11 +14,32 @@ export const GENERAL_STYLES = StyleSheet.create({
   generalPadding: {
     padding: 20,
   },
-  horizontalPadding: {
+  generalHorizontalPadding: {
     paddingHorizontal: 20,
+  },
+  generalVerticalPadding: {
+    paddingVertical: 20
   },
   paddingBottom: {
     paddingBottom: 20,
+  },
+  paddingVerticalMedium: {
+    paddingVertical: 40
+  },
+  paddingVerticalBig: {
+    paddingVertical: 70
+  },
+  fivePercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.05
+  },
+  tenPercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.1
+  },
+  fiveteenPercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.15
+  },
+  tenPercentWindowWidthHorizontalPadding: {
+    paddingHorizontal: width * 0.1
   },
   marginTop: {
     marginTop: 10,
@@ -30,17 +50,20 @@ export const GENERAL_STYLES = StyleSheet.create({
   flexRow: {
     flexDirection: "row",
   },
+  flexGapBig: {
+    gap: 40
+  },
   flexGap: {
     gap: 20,
   },
   flexGapSmall: {
     gap: 10,
   },
+  flexGapExtraSmall: {
+    gap: 5,
+  },
   flexGrow: {
     flex: 1,
-  },
-  title: {
-    fontSize: 22,
   },
   alignCenter: {
     alignItems: "center",
@@ -59,6 +82,18 @@ export const GENERAL_STYLES = StyleSheet.create({
     fontSize: 25,
     marginBottom: 40,
   },
+  textSmall: {
+    fontSize: 14
+  },
+  textMedium: {
+    fontSize: 16
+  },
+  textBig: {
+    fontSize: 22
+  },
+  textExtraBig: {
+    fontSize: 25
+  },
   textCenter: {
     textAlign: "center",
     justifyContent: "center",
@@ -70,27 +105,26 @@ export const GENERAL_STYLES = StyleSheet.create({
     fontStyle: "italic",
   },
   textBlack: {
-    color: grayColor,
+    color: colorBlack,
   },
   textWhite: {
-    color: whiteColor
+    color: colorWhite
   },
   textGray: {
-    color: "gray",
+    color: colorGray
   },
-  navBar: {
+  navigationHeaderText: {
     fontFamily: "Inter",
-    fontSize: 20,
     fontWeight: "bold",
   },
   navBarRigth: {
     flexGrow: 0.1,
   },
   whiteBackgroundColor: {
-    backgroundColor: whiteBackgroundColor,
+    backgroundColor: colorWhiteBackground,
   },
   grayBackgroundColor: {
-    backgroundColor: grayColor
+    backgroundColor: colorBlack
   },
   justifyCenter: {
     justifyContent: "center",
@@ -99,30 +133,39 @@ export const GENERAL_STYLES = StyleSheet.create({
     justifyContent: "space-between",
   },
   loginSignInButton: {
-    borderColor: "black",
-    borderWidth: 2,
+    borderColor: colorBlack,
     borderRadius: 10,
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
   generalBorder: {
     borderStyle: "solid",
-    borderColor: "black",
-    borderWidth: 2,
+    borderColor: colorBlack,
     borderRadius: 10,
   },
   defaultBorder: {
     borderStyle: "solid",
-    borderColor: grayColor,
-    borderWidth: 2.5,
+    borderColor: colorBlack,
+  },
+  defaultBorderWidth: {
+    borderWidth: 2.5
+  },
+  mediumBorderWidth: {
+    borderWidth: 2
+  },
+  borderRadiusBig: {
+    borderRadius: 35
+  },
+  borderTopDisabled: {
+    borderTopWidth: 0
   },
   uiButton: {
     borderStyle: "solid",
-    borderColor: "black",
+    borderColor: colorBlack,
     borderWidth: 2,
     borderRadius: 10,
     padding: 10,
-    backgroundColor: "black",
+    backgroundColor: colorBlack,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -137,14 +180,17 @@ export const GENERAL_STYLES = StyleSheet.create({
     right: 30,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 5,
+    elevation: 10,
+    zIndex: 10,
+    backgroundColor: colorBlack
   },
   navigationHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 25,
-    paddingVertical: 30,
+    paddingBottom: 20,
+    paddingTop: 30,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
   },

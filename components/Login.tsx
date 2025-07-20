@@ -31,6 +31,7 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
         <Text
           style={[
             GENERAL_STYLES.uiText,
+            GENERAL_STYLES.textBlack,
             GENERAL_STYLES.textBold,
             GENERAL_STYLES.alignCenter,
             GENERAL_STYLES.textTitleBig,
@@ -43,6 +44,7 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
             style={[
               GENERAL_STYLES.whiteBackgroundColor,
               GENERAL_STYLES.loginSignInButton,
+              GENERAL_STYLES.mediumBorderWidth
             ]}
             onPress={() => {
               GoogleSignin.configure({
@@ -109,6 +111,7 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
               <Text
                 style={[
                   GENERAL_STYLES.uiText,
+                  GENERAL_STYLES.textBlack,
                   GENERAL_STYLES.textCenter,
                   GENERAL_STYLES.textBold,
                 ]}
@@ -128,7 +131,11 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
               }
             }}
           >
-            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
+            <Text style={[
+              GENERAL_STYLES.uiText,
+              GENERAL_STYLES.textBlack,
+              GENERAL_STYLES.textTitle
+            ]}>
               {
                 translationsContext.translations.login
                   .continueWithoutOnlineFeatures

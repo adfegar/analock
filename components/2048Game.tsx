@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import {
   View,
   Text,
@@ -19,12 +19,15 @@ import {
 } from "../services/storage.services";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
-import { SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
+import { colorBlack, colorGray, colorWhite, colorWhiteBackground, SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
 import { TTFEGameData } from "../types/game";
 import { GameWon } from "./GameWon";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
 import { getMatrixColumn, setMatrixColumn } from "../utils/utils";
+import { GAME_STYLES } from "../constants/games.styles";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { BaseScreen } from "./BaseScreen";
 
 type Direction = "up" | "down" | "left" | "right";
 export type TTFEBoard = number[][];
@@ -39,14 +42,17 @@ interface BoardMoveStatus {
   moveWon: boolean
 }
 
+// Calculate board and cell size
 const { width } = Dimensions.get("window");
-const BOARD_SIZE = width - 32;
-const CELL_SIZE = BOARD_SIZE / 4;
+const BOARD_SIZE = width - 40;
+const CELL_SIZE = (BOARD_SIZE / 4) - 2;
 const CELL_MARGIN = 4;
 const BOARD_DIMENSIONS = 4
+
+// Set color for each possible value
 const colors: Record<number, string> = {
-  0: "#CDC1B4",
-  2: "#EEE4DA",
+  0: colorGray,
+  2: colorWhiteBackground,
   4: "#EDE0C8",
   8: "#F2B179",
   16: "#F59563",
@@ -70,6 +76,8 @@ export function Game2048() {
   const [won, setWon] = useState<boolean>(
     ttfeGameData ? ttfeGameData.won : false,
   );
+  const gamesTranslations = useContext(TranslationsContext)?.translations.games
+
   useSaveOnExit({
     name: TTFE_GAME_NAME,
     data: { ttfeBoard: board, ttfeScore: score },
@@ -94,10 +102,6 @@ export function Game2048() {
   }
 
   function initializeScore(): number {
-    const ttfeGameData = gamesData?.find(
-      (data) => data.name === TTFE_GAME_NAME,
-    );
-
     return ttfeGameData ? (ttfeGameData.data as TTFEGameData).ttfeScore : 0;
   }
 
@@ -295,10 +299,6 @@ export function Game2048() {
       translateY.value = 0;
     });
 
-  function getTextColor(value: number): string {
-    return value <= 4 ? "#776E65" : "#F9F6F2";
-  };
-
   function getFontSize(value: number): number {
     if (value >= 1024) return 20;
     if (value >= 100) return 24;
@@ -312,102 +312,80 @@ export function Game2048() {
   };
 
   return !won ? (
-    <GestureHandlerRootView
-      style={[styles.container, GENERAL_STYLES.whiteBackgroundColor]}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>2048</Text>
-        <View style={styles.scoreContainer}>
-          <Text style={styles.scoreLabel}>Score</Text>
-          <Text style={styles.scoreValue}>{score}</Text>
-        </View>
-      </View>
+    <BaseScreen>
+      <GestureHandlerRootView
+        style={[GAME_STYLES.ttfeContainer, GENERAL_STYLES.whiteBackgroundColor]}
+      >
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={styles.ttfeBoard} testID="game-board">
+            {board.map((row, i) => (
+              <View key={i} style={GAME_STYLES.ttfeRow}>
+                {row.map((cell, j) => (
+                  <View
+                    key={`${i} - ${j}`}
+                    style={[styles.cell, { backgroundColor: colors[cell] }]}
+                  >
+                    {cell !== 0 && (
+                      <Text
+                        style={[
+                          GAME_STYLES.ttfeCellText,
+                          {
+                            color: colorBlack,
+                            fontSize: getFontSize(cell),
+                          },
+                        ]}
+                      >
+                        {cell}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            ))}
+          </Animated.View>
+        </GestureDetector>
 
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={styles.board} testID="game-board">
-          {board.map((row, i) => (
-            <View key={i} style={styles.row}>
-              {row.map((cell, j) => (
-                <View
-                  key={`${i} - ${j}`}
-                  style={[styles.cell, { backgroundColor: colors[cell] }]}
-                >
-                  {cell !== 0 && (
-                    <Text
-                      style={[
-                        styles.cellText,
-                        {
-                          color: getTextColor(cell),
-                          fontSize: getFontSize(cell),
-                        },
-                      ]}
-                    >
-                      {cell}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          ))}
-        </Animated.View>
-      </GestureDetector>
 
-      {gameOver && (
-        <View style={styles.gameOver}>
-          <Text style={styles.gameOverText}>Game Over!</Text>
-          <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
-            <Text style={styles.resetButtonText}>Play Again</Text>
-          </TouchableOpacity>
+        <View style={GAME_STYLES.ttfeScoreContainer}>
+          <Text style={GAME_STYLES.ttfeScoreLabel}>{`${gamesTranslations?.score}:`}</Text>
+          <Text style={GAME_STYLES.ttfeScoreValue}>{score}</Text>
         </View>
-      )}
-    </GestureHandlerRootView>
+
+        {gameOver && (
+          <View style={[
+            GAME_STYLES.ttfeGameOver,
+            GENERAL_STYLES.flexCol,
+            GENERAL_STYLES.flexGap,
+            GENERAL_STYLES.alignCenter,
+            GENERAL_STYLES.justifyCenter
+          ]}>
+            <Text style={[GAME_STYLES.ttfeGameOverText, GENERAL_STYLES.textCenter]}>{gamesTranslations?.gameOver}</Text>
+            <TouchableOpacity
+              style={[
+                GENERAL_STYLES.grayBackgroundColor,
+                GENERAL_STYLES.generalPadding,
+                GENERAL_STYLES.alignCenter,
+                GENERAL_STYLES.generalBorder
+              ]}
+              onPress={resetGame}>
+              <Text style={GAME_STYLES.ttfeResetButtonText}>{gamesTranslations?.playAgain}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </GestureHandlerRootView>
+    </BaseScreen>
   ) : (
     <GameWon />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "black",
-  },
-  scoreContainer: {
-    backgroundColor: "black",
-    padding: 8,
-    borderRadius: 6,
-    minWidth: 100,
-    alignItems: "center",
-  },
-  scoreLabel: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  scoreValue: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  board: {
+  ttfeBoard: {
     width: BOARD_SIZE,
     height: BOARD_SIZE,
-    backgroundColor: "#BBADA0",
-    borderRadius: 6,
+    backgroundColor: colorBlack,
+    borderRadius: 8,
     padding: CELL_MARGIN,
-  },
-  row: {
-    flexDirection: "row",
   },
   cell: {
     width: CELL_SIZE - CELL_MARGIN * 2,
@@ -416,37 +394,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#CDC1B4",
-  },
-  cellText: {
-    fontSize: 32,
-    fontWeight: "bold",
-  },
-  gameOver: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(238, 228, 218, 0.73)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  gameOverText: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#776E65",
-    marginBottom: 16,
-  },
-  resetButton: {
-    backgroundColor: "black",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 3,
-  },
-  resetButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
+    backgroundColor: colorGray,
   },
 });

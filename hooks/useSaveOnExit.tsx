@@ -10,11 +10,13 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { GamesData } from "../types/game";
 import { SettingsContext } from "../contexts/settingsContext";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
 
 export function useSaveOnExit(data: StorageData): void {
   const [appInBackground, setAppOnBackground] = useState<boolean>(false);
   const navigation = useNavigation();
   const settingsContext = useContext(SettingsContext);
+  const activityCompletionContext = useContext(ActivityCompletionContext)
 
   // hook that performs save before exiting app
   useEffect(() => {
@@ -58,6 +60,7 @@ export function useSaveOnExit(data: StorageData): void {
    * @param data the data to be saved
    */
   function saveData(data: StorageData): void {
+    const updatedActivityCompletionMap = new Map(activityCompletionContext?.activityCompletionMap)
     if ("bookId" in data && "currentPage" in data) {
       const currentBookData = getStorageBooks();
 
@@ -65,15 +68,31 @@ export function useSaveOnExit(data: StorageData): void {
         const indexToUpdate = currentBookData.findIndex(
           (bookData) => bookData.id === data.bookId,
         );
-        currentBookData[indexToUpdate].data.currentPage = data.currentPage;
-        currentBookData[indexToUpdate].data.finished = data.finished;
-        setStorageBook(currentBookData);
+        if (currentBookData[indexToUpdate].data) {
+          currentBookData[indexToUpdate].data.currentPage = data.currentPage;
+          currentBookData[indexToUpdate].data.finished = data.finished;
+          setStorageBook(currentBookData);
+          // Update activity completion context
+          updatedActivityCompletionMap.set(ActivityKind.Book, currentBookData)
+        }
       }
     } else if ("general" in data && "bookReader" in data) {
       setSettings(data as SettingsData);
       settingsContext?.setSettings(data as SettingsData);
     } else {
-      saveGamesData(data as GamesData);
+      const gamesData = data as GamesData
+      saveGamesData(gamesData);
+      // Update activity completion context
+      const currentGamesData = (activityCompletionContext) ? [...activityCompletionContext?.activityCompletionMap.get(ActivityKind.Game) as GamesData[]] : []
+      const savedGameDataIndex = currentGamesData.findIndex(gameData => gameData.name === gamesData.name)
+      // If game is in context, update it. If not, add it.
+      if (savedGameDataIndex !== -1) {
+        currentGamesData[savedGameDataIndex] = gamesData
+      } else {
+        currentGamesData.push(gamesData)
+      }
+      updatedActivityCompletionMap.set(ActivityKind.Game, currentGamesData)
     }
+    activityCompletionContext?.setActivityCompletionMap(updatedActivityCompletionMap)
   }
 }

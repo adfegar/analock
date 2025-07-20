@@ -30,11 +30,12 @@ export const CardComponent: React.FC<CardComponentProps> = ({
         },
       ]}
     >
-      <View style={[HOME_STYLES.contentCard, GENERAL_STYLES.defaultBorder, GENERAL_STYLES.flexRow]}>
+      <View style={[HOME_STYLES.contentCard, GENERAL_STYLES.defaultBorder, GENERAL_STYLES.defaultBorderWidth, GENERAL_STYLES.flexRow]}>
         {Icon && <Icon />}
         <Text
           style={[
             GENERAL_STYLES.uiText,
+            GENERAL_STYLES.textBlack,
             GENERAL_STYLES.textCenter,
             HOME_STYLES.contentCardText,
             { flexWrap: "wrap" },

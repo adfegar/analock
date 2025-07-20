@@ -15,7 +15,7 @@ export const ErrorScreen: React.FC<ErrorScreenProps> = ({ errorText }) => {
           GENERAL_STYLES.alignCenter,
         ]}
       >
-        <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
+        <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textTitle]}>
           {errorText}
         </Text>
       </View>

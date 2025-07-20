@@ -1,4 +1,4 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode, useMemo } from "react";
 import { getSetLanguageTranslations } from "../services/translation.services";
 
 export const TranslationsContext = createContext<TranslationsContext | null>(
@@ -20,14 +20,13 @@ export const TranslationsProvider: React.FC<TranslationsProviderProps> = ({
   const [translations, setTranslations] = useState<Translation>(
     getSetLanguageTranslations(),
   );
+  const value = useMemo(
+    () => ({ translations, setTranslations }),
+    [translations],
+  );
 
   return (
-    <TranslationsContext.Provider
-      value={{
-        translations,
-        setTranslations,
-      }}
-    >
+    <TranslationsContext.Provider value={value}>
       {children}
     </TranslationsContext.Provider>
   );

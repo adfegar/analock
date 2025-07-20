@@ -14,6 +14,7 @@ import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
 import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
 
 const DiaryEntryDetailScreen: React.FC = ({ route }) => {
   const {
@@ -31,6 +32,7 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
   );
   const translationsContext = useContext(TranslationsContext);
   const navigation = useNavigation();
+  const activityCompletionContext = useContext(ActivityCompletionContext)
 
   return (
     translationsContext && (
@@ -61,6 +63,7 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
             style={[
               GENERAL_STYLES.uiText,
               GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
               GENERAL_STYLES.generalPadding,
               GENERAL_STYLES.textBlack,
               GENERAL_STYLES.textTitle,
@@ -82,6 +85,7 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
               GENERAL_STYLES.uiText,
               GENERAL_STYLES.textBlack,
               GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
               GENERAL_STYLES.flexGrow,
               GENERAL_STYLES.generalPadding,
             ]}
@@ -117,6 +121,12 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
                       if (savedEntry) {
                         const diaryEntries = [savedEntry, ...userDiaryEntries];
                         setUserDiaryEntries(diaryEntries);
+                        // Update activity completion context
+                        if (activityCompletionContext) {
+                          const updatedActivityCompletionMap = new Map(activityCompletionContext.activityCompletionMap)
+                          updatedActivityCompletionMap.set(ActivityKind.Diary, diaryEntries)
+                          activityCompletionContext.setActivityCompletionMap(updatedActivityCompletionMap)
+                        }
                       }
                     })
                     .catch((err) => {

@@ -1,23 +1,35 @@
-import { BaseScreen } from "./BaseScreen";
-import { BookCard } from "./BookCard";
 import {
   useOpenLibraryBooksBySubject,
   useOpenLibraryBooksBySubjectResult,
 } from "../hooks/useOpenLibraryBooksBySubject";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
-import { useContext, useEffect, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { ErrorScreen } from "./ErrorScreen";
-import { getStorageUserData } from "../services/storage.services";
+import { getStorageBooks, getStorageUserData } from "../services/storage.services";
 import { BookSubjectSelection } from "./BookSubjectSelection";
 import { NavigationHeader } from "./NavigationHeader";
+import { FlatListCard } from "./FlatListCard";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { BooksIcon } from "./icons/BooksIcon";
+import { colorGreen, colorWhiteBackground } from "../constants/constants";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
 
 const BOOK_NUMBER = 2;
+
+type BookStackParamList = {
+  Books: undefined;
+  Book: { id: string; title: string };
+};
+
+interface BooksProps {
+  subject: string;
+}
 
 export enum InternetArchiveSubject {
   FICTION = "Fiction",
@@ -53,18 +65,21 @@ const BooksScreen = () => {
   return (
     <BooksStack.Navigator
       initialRouteName="Books"
-      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
     >
       <BooksStack.Screen
         name="Books"
         component={BooksWrapper}
-        options={{ headerTitle: translations?.books }}
+        options={{
+          headerTitle: translations?.books,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+        }}
       />
       <BooksStack.Screen
         name="Book"
         component={BookDetailScreen}
         options={({ route }) => ({
           headerTitle: route.params?.title as string,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
         })}
       />
     </BooksStack.Navigator>
@@ -107,10 +122,6 @@ const BooksWrapper: React.FC = () => {
   );
 };
 
-interface BooksProps {
-  subject: string;
-}
-
 const Books: React.FC<BooksProps> = ({ subject }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const openLibraryResponse: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
@@ -120,6 +131,9 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
   });
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const translationsContext = useContext(TranslationsContext);
+  const navigation: NativeStackNavigationProp<BookStackParamList> =
+    useNavigation();
+  const activityCompletionContext = useContext(ActivityCompletionContext)
 
   /**
    * Aux function to perform download of books returned by Internet Archive response.
@@ -168,36 +182,74 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
 
   return (
     translationsContext && (
-      <BaseScreen>
+      <>
         {loading && !errorMessage && (
           <LoadingIndicator
             text={translationsContext.translations.books.donwloadingContent}
           />
         )}
         {!loading && (
-          <View
-            style={[
-              GENERAL_STYLES.flexCol,
-              GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.flexGrow,
-              { gap: 30 },
-            ]}
-          >
+          <>
             {!errorMessage ? (
-              openLibraryResponse.openLibraryBooksBySubject?.map((book) => (
-                <BookCard
-                  key={book.identifier}
-                  id={book.identifier}
-                  title={book.title}
-                  author={book.creator}
-                />
-              ))
+              <FlatList
+                numColumns={2}
+                data={openLibraryResponse.openLibraryBooksBySubject}
+                keyExtractor={(book) => book.identifier}
+                renderItem={({ item, index }) => (
+                  <FlatListCard
+                    flatListIndex={index}
+                    onPress={() => {
+                      navigation.push("Book",
+                        {
+                          id: item.identifier,
+                          title: item.title
+                        }
+                      );
+                    }}
+                  >
+                    <View style={[
+                      GENERAL_STYLES.defaultBorder,
+                      GENERAL_STYLES.defaultBorderWidth,
+                      GENERAL_STYLES.alignCenter,
+                      GENERAL_STYLES.borderRadiusBig,
+                      GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding,
+                      {
+                        backgroundColor: activityCompletionContext !== null
+                          && (activityCompletionContext.activityCompletionMap.get(ActivityKind.Book) as StorageBook[])?.find(bookData => bookData.id === item.identifier)?.data?.finished
+                          ? colorGreen
+                          : colorWhiteBackground
+                      }
+                    ]}>
+                      <BooksIcon />
+                    </View>
+                    <View style={[
+                      GENERAL_STYLES.flexCol,
+                      GENERAL_STYLES.flexGapExtraSmall,
+                      GENERAL_STYLES.alignCenter,
+                      GENERAL_STYLES.justifyCenter,
+                    ]}>
+                      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textBold]} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]} numberOfLines={1}>
+                        {item.creator ? item.creator : translationsContext.translations.books.noAuthor}
+                      </Text>
+                    </View>
+                  </FlatListCard>
+                )}
+                contentContainerStyle={[
+                  GENERAL_STYLES.baseScreenPadding,
+                  GENERAL_STYLES.whiteBackgroundColor,
+                  GENERAL_STYLES.flexGrow
+                ]}
+                removeClippedSubviews={false}
+              />
             ) : (
               <ErrorScreen errorText={errorMessage} />
             )}
-          </View>
+          </>
         )}
-      </BaseScreen>
+      </>
     )
   );
 };
