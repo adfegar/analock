@@ -17,6 +17,7 @@ export type StorageData =
   | GamesData
   | StorageBook
   | BookStorageData
+  | DiaryEntry
   | UserData
   | SettingsData;
 
@@ -192,12 +193,17 @@ export function setStorageBook(books: StorageBook[]): void {
 
 // GAME STORAGE
 
-export function getStorageGamesData(): GamesData[] | undefined {
+export function getStorageGamesData(): GamesData[] {
   const gameDataString = storageInstance.getString(GAMES_DATA_STORAGE_KEY);
   let gameData: GamesData[] | undefined;
 
   if (gameDataString) {
     gameData = JSON.parse(gameDataString) as GamesData[];
+  } else {
+    gameData = [
+      { name: SUDOKU_GAME_NAME, won: false },
+      { name: TTFE_GAME_NAME, won: false }
+    ]
   }
 
   return gameData;
@@ -208,10 +214,12 @@ export function setStorageGamesData(gameData: GamesData[]): void {
 }
 
 export function saveGamesData(gameData: GamesData): void {
-  if (isSudokuGrid(gameData.data)) {
-    saveStorageGamesSudoku(gameData);
-  } else if (isTTFEGameData(gameData.data)) {
-    saveStorageGamesTTFE(gameData);
+  if (gameData.data) {
+    if (isSudokuGrid(gameData.data)) {
+      saveStorageGamesSudoku(gameData);
+    } else if (isTTFEGameData(gameData.data)) {
+      saveStorageGamesTTFE(gameData);
+    }
   }
 }
 

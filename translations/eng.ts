@@ -34,7 +34,9 @@ export const englishTranslations: Translation = {
   },
   games: {
     won: "You won!\nCome tommorrow and play again!",
-    score: "Score"
+    score: "Score",
+    gameOver: "Game Over!",
+    playAgain: "Play again"
   },
   diary: {
     add: "Add",

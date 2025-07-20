@@ -1,25 +1,26 @@
 import { GENERAL_STYLES } from "../constants/general.styles";
-import { BackHandler, FlatList, Text, View } from "react-native";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { BackHandler, FlatList, StatusBar, Text, View } from "react-native";
+import { useContext, useEffect, useState } from "react";
 import { Login } from "./Login";
-import { getStorageBooks, getStorageGamesData, getStorageUserData, setStorageUserData } from "../services/storage.services";
+import { getStorageUserData } from "../services/storage.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
 import { DiaryIcon } from "./icons/DiaryIcon";
-import { BooksIcon } from "./icons/BooksIcon";
-import { ProfileIcon } from "./icons/ProfileIcon";
 import { SettingsContext } from "../contexts/settingsContext";
 import { InfoBar } from "./InfoBar";
 import { GamesIlustration } from "./icons/GamesIlustration";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { FlatListCard } from "./FlatListCard";
 import { HOME_STYLES } from "../constants/home.styles";
-import { colorBlack, colorWhiteBackground } from "../constants/constants";
+import { colorBlack, colorGreen, colorPink, colorPurple, colorWhiteBackground } from "../constants/constants";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { getIntervalUserDiaryEntries } from "../services/diaryEntries.services";
-import { areDatesEqual, timestampToDate } from "../utils/date.utils";
+import { areDatesEqual } from "../utils/date.utils";
 import { useWipePeriodicContent } from "../hooks/useWipePeriodicContent";
+import BooksIlustration from "./icons/BooksIlustration";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
+import { GamesData } from "../types/game";
+import ProfileIlustration from "./icons/ProfileIlustration";
 
 type RootStackParamList = {
   Home: undefined;
@@ -33,15 +34,51 @@ interface ContentCardData {
   name: string;
   screenName: keyof RootStackParamList;
   Icon: React.FC;
+  activityKind?: ActivityKind
 }
 
+const activityCompletionColor = new Map<keyof RootStackParamList, string>([
+  ["DiaryScreen", colorPurple],
+  ["BooksScreen", colorGreen],
+  ["GamesScreen", colorPink]
+])
+
 const Home: React.FC = () => {
+  const [activityCompletionMap, setActivityCompletionMap] = useState(new Map<ActivityKind, boolean>())
   const navigation: NativeStackNavigationProp<RootStackParamList> = useNavigation();
   const [authenticated, setAuthenticated] = useState<boolean>(
     getStorageUserData().authenticated,
   );
   const translationsContext = useContext(TranslationsContext);
   const settingsContext = useContext(SettingsContext);
+  const activityCompletionContext = useContext(ActivityCompletionContext)
+  useWipePeriodicContent()
+
+  useEffect(() => {
+    if (activityCompletionContext) {
+      const bookData = activityCompletionContext.activityCompletionMap.get(ActivityKind.Book) as StorageBook[];
+      const gameData = activityCompletionContext.activityCompletionMap.get(ActivityKind.Game) as GamesData[]
+      const diaryData = activityCompletionContext.activityCompletionMap.get(ActivityKind.Diary) as DiaryEntry[]
+      const updatedActivityCompletionMap = new Map(activityCompletionMap)
+      if (bookData && bookData.length > 0) {
+        updatedActivityCompletionMap.set(ActivityKind.Book, bookData.every(storageBook => storageBook.data && storageBook.data.finished))
+      }
+      if (gameData && gameData.length > 0) {
+        updatedActivityCompletionMap.set(ActivityKind.Game, gameData.every(storageGame => storageGame.won))
+      }
+
+      if (diaryData && diaryData.length > 0) {
+        updatedActivityCompletionMap.set(ActivityKind.Diary,
+          diaryData.some(
+            diaryEntry =>
+              areDatesEqual(new Date(), new Date(diaryEntry.registration.registrationDate))
+          )
+        )
+      }
+
+      setActivityCompletionMap(updatedActivityCompletionMap)
+    }
+  }, [activityCompletionContext]);
 
   // hook to handle back button press
   useEffect(() => {
@@ -75,21 +112,24 @@ const Home: React.FC = () => {
       name: translations.home.diary,
       screenName: "DiaryScreen",
       Icon: DiaryIcon,
+      activityKind: ActivityKind.Diary
     },
     {
       name: translations.home.profile,
       screenName: "MySpaceScreen",
-      Icon: ProfileIcon,
+      Icon: ProfileIlustration,
     },
     {
       name: translations.home.books,
       screenName: "BooksScreen",
-      Icon: BooksIcon,
+      Icon: BooksIlustration,
+      activityKind: ActivityKind.Book
     },
     {
       name: translations.home.games,
       screenName: "GamesScreen",
       Icon: GamesIlustration,
+      activityKind: ActivityKind.Game
     },
   ];
 
@@ -100,7 +140,14 @@ const Home: React.FC = () => {
         GENERAL_STYLES.whiteBackgroundColor,
       ]}
     >
-      <InfoBar />
+      <StatusBar
+        animated={true}
+        backgroundColor={colorBlack}
+        barStyle={"light-content"}
+      />
+      <InfoBar
+        activityCompletionMap={activityCompletionMap}
+      />
       <BaseScreen>
         <FlatList
           numColumns={2}
@@ -120,7 +167,11 @@ const Home: React.FC = () => {
                   borderTopRightRadius: index !== 1 ? 0 : 40,
                   borderBottomLeftRadius: index !== 2 ? 0 : 40,
                   borderBottomRightRadius: index !== 3 ? 0 : 40,
-                  backgroundColor: item.screenName !== 'MySpaceScreen' ? 'inherit' : colorBlack
+                  backgroundColor: item.screenName !== 'MySpaceScreen'
+                    ? (item.activityKind !== undefined && activityCompletionMap.get(item.activityKind)
+                      ? activityCompletionColor.get(item.screenName)
+                      : colorWhiteBackground)
+                    : colorBlack
                 }]}>
                 <item.Icon />
                 <Text

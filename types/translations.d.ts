@@ -33,6 +33,8 @@ interface BooksTranslations {
 interface GamesTranslations {
   won: string;
   score: string;
+  gameOver: string;
+  playAgain: string;
 }
 
 interface DiaryTranslations {

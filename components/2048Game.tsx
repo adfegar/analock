@@ -102,10 +102,6 @@ export function Game2048() {
   }
 
   function initializeScore(): number {
-    const ttfeGameData = gamesData?.find(
-      (data) => data.name === TTFE_GAME_NAME,
-    );
-
     return ttfeGameData ? (ttfeGameData.data as TTFEGameData).ttfeScore : 0;
   }
 
@@ -356,10 +352,23 @@ export function Game2048() {
         </View>
 
         {gameOver && (
-          <View style={GAME_STYLES.ttfeGameOver}>
-            <Text style={GAME_STYLES.ttfeGameOverText}>Game Over!</Text>
-            <TouchableOpacity style={GAME_STYLES.ttfeResetButton} onPress={resetGame}>
-              <Text style={GAME_STYLES.ttfeGameOverText}>Play Again</Text>
+          <View style={[
+            GAME_STYLES.ttfeGameOver,
+            GENERAL_STYLES.flexCol,
+            GENERAL_STYLES.flexGap,
+            GENERAL_STYLES.alignCenter,
+            GENERAL_STYLES.justifyCenter
+          ]}>
+            <Text style={[GAME_STYLES.ttfeGameOverText, GENERAL_STYLES.textCenter]}>{gamesTranslations?.gameOver}</Text>
+            <TouchableOpacity
+              style={[
+                GENERAL_STYLES.grayBackgroundColor,
+                GENERAL_STYLES.generalPadding,
+                GENERAL_STYLES.alignCenter,
+                GENERAL_STYLES.generalBorder
+              ]}
+              onPress={resetGame}>
+              <Text style={GAME_STYLES.ttfeResetButtonText}>{gamesTranslations?.playAgain}</Text>
             </TouchableOpacity>
           </View>
         )}

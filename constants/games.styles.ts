@@ -85,28 +85,21 @@ export const GAME_STYLES = StyleSheet.create({
   },
   ttfeGameOver: {
     position: "absolute",
-    top: 0,
+    top: -20,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(238, 228, 218, 0.73)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: colorWhiteBackground,
+    opacity: 0.9
   },
   ttfeGameOverText: {
     fontSize: 40,
     fontWeight: "bold",
-    color: "#776E65",
+    color: colorBlack,
     marginBottom: 16,
   },
-  ttfeResetButton: {
-    backgroundColor: colorBlack,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 3,
-  },
   ttfeResetButtonText: {
-    color: "white",
+    color: colorWhite,
     fontSize: 18,
     fontWeight: "bold",
   },

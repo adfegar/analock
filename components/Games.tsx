@@ -2,7 +2,7 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-na
 import { SudokuGame } from "./Sudoku";
 import GameDetailScreen from "./Game";
 import { Game2048 } from "./2048Game";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { NavigationHeader } from "./NavigationHeader";
 import { FlatList, Text, View } from "react-native";
@@ -10,6 +10,10 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { FlatListCard } from "./FlatListCard";
 import { useNavigation } from "@react-navigation/native";
 import { GamesIcon } from "./icons/GamesIcon";
+import { colorPink, colorWhiteBackground } from "../constants/constants";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
+import { GamesData } from "../types/game";
+import { getStorageGamesData, setStorageGamesData } from "../services/storage.services";
 
 interface Game {
   name: string;
@@ -62,6 +66,7 @@ const Games: React.FC = () => {
   ];
 
   const navigation = useNavigation<NativeStackNavigationProp<GameStackParamList>>();
+  const activityCompletionContext = useContext(ActivityCompletionContext)
   return (
     <FlatList
       numColumns={2}
@@ -85,7 +90,13 @@ const Games: React.FC = () => {
             GENERAL_STYLES.defaultBorderWidth,
             GENERAL_STYLES.alignCenter,
             GENERAL_STYLES.borderRadiusBig,
-            GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding
+            GENERAL_STYLES.fivePercentWindowHeigthVerticalPadding,
+            {
+              backgroundColor: activityCompletionContext !== null
+                && (activityCompletionContext.activityCompletionMap.get(ActivityKind.Game) as GamesData[])?.find(gameData => gameData.name === item.name)?.won
+                ? colorPink
+                : colorWhiteBackground
+            }
           ]}>
             <GamesIcon />
           </View>

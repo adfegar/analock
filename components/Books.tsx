@@ -4,19 +4,21 @@ import {
 } from "../hooks/useOpenLibraryBooksBySubject";
 import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { ErrorScreen } from "./ErrorScreen";
-import { getStorageUserData } from "../services/storage.services";
+import { getStorageBooks, getStorageUserData } from "../services/storage.services";
 import { BookSubjectSelection } from "./BookSubjectSelection";
 import { NavigationHeader } from "./NavigationHeader";
 import { FlatListCard } from "./FlatListCard";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { BooksIcon } from "./icons/BooksIcon";
+import { colorGreen, colorWhiteBackground } from "../constants/constants";
+import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
 
 const BOOK_NUMBER = 2;
 
@@ -131,6 +133,7 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
   const translationsContext = useContext(TranslationsContext);
   const navigation: NativeStackNavigationProp<BookStackParamList> =
     useNavigation();
+  const activityCompletionContext = useContext(ActivityCompletionContext)
 
   /**
    * Aux function to perform download of books returned by Internet Archive response.
@@ -209,7 +212,13 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
                       GENERAL_STYLES.defaultBorderWidth,
                       GENERAL_STYLES.alignCenter,
                       GENERAL_STYLES.borderRadiusBig,
-                      GENERAL_STYLES.twentyPercentWindowHeigthVerticalPadding
+                      GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding,
+                      {
+                        backgroundColor: activityCompletionContext !== null
+                          && (activityCompletionContext.activityCompletionMap.get(ActivityKind.Book) as StorageBook[])?.find(bookData => bookData.id === item.identifier)?.data?.finished
+                          ? colorGreen
+                          : colorWhiteBackground
+                      }
                     ]}>
                       <BooksIcon />
                     </View>

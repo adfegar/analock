@@ -2,7 +2,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
 import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
-import { BaseScreen } from "./BaseScreen";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { areDatesEqual } from "../utils/date.utils";
 import { getSettings, getStorageUserData } from "../services/storage.services";
@@ -73,29 +72,29 @@ const DiaryEntries: React.FC = () => {
   }, [userDiaryEntries]);
 
   return !error ? (
-    <View style={[GENERAL_STYLES.generalHorizontalPadding, GENERAL_STYLES.whiteBackgroundColor]}>
-      <TouchableOpacity
-        disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
-        onPressIn={() => {
-          navigation.push("DiaryEntry", {
-            isUpdate: false,
-            userDiaryEntries,
-            setUserDiaryEntries,
-          });
-        }}
-        style={[
-          GENERAL_STYLES.uiButton,
-          GENERAL_STYLES.floatingRightButton,
-          isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
-          GENERAL_STYLES.buttonDisabled,
-        ]}
-      >
-        <AddIcon />
-      </TouchableOpacity>
+    <View style={[GENERAL_STYLES.generalHorizontalPadding, GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}>
       {loading ? (
         <LoadingIndicator />
       ) : (
         <SafeAreaView>
+          <TouchableOpacity
+            disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
+            onPressIn={() => {
+              navigation.push("DiaryEntry", {
+                isUpdate: false,
+                userDiaryEntries,
+                setUserDiaryEntries,
+              });
+            }}
+            style={[
+              GENERAL_STYLES.uiButton,
+              GENERAL_STYLES.floatingRightButton,
+              isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
+              GENERAL_STYLES.buttonDisabled,
+            ]}
+          >
+            <AddIcon />
+          </TouchableOpacity>
           {userDiaryEntries && (
             <FlatList
               numColumns={2}

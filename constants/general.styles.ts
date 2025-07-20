@@ -1,7 +1,7 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Dimensions, StyleSheet, useWindowDimensions } from "react-native";
 import { colorBlack, colorGray, colorWhite, colorWhiteBackground } from "./constants";
 
-const { width, height } = useWindowDimensions()
+const { width, height } = Dimensions.get("window")
 
 export const GENERAL_STYLES = StyleSheet.create({
   baseScreenPadding: {
@@ -29,11 +29,14 @@ export const GENERAL_STYLES = StyleSheet.create({
   paddingVerticalBig: {
     paddingVertical: 70
   },
-  tenPercentWindowHeigthVerticalPadding: {
-    paddingVertical: width * 0.15
+  fivePercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.05
   },
-  twentyPercentWindowHeigthVerticalPadding: {
-    paddingVertical: width * 0.2
+  tenPercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.1
+  },
+  fiveteenPercentWindowHeigthVerticalPadding: {
+    paddingVertical: height * 0.15
   },
   tenPercentWindowWidthHorizontalPadding: {
     paddingHorizontal: width * 0.1

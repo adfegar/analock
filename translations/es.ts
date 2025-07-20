@@ -34,7 +34,9 @@ export const spanishTranslations: Translation = {
   },
   games: {
     won: "¡Ganaste!\n¡Vuelve mañana para jugar más!",
-    score: "Puntuación"
+    score: "Puntuación",
+    gameOver: "¡Se acabó la partida!",
+    playAgain: "Jugar otra vez"
   },
   diary: {
     add: "Añadir",

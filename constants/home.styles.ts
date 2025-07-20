@@ -1,6 +1,6 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 
-const { width, height } = useWindowDimensions()
+const { width, height } = Dimensions.get("window")
 
 export const HOME_STYLES = StyleSheet.create({
   contentCard: {
