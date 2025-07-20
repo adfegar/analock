@@ -1,4 +1,4 @@
-import { FlatList } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { BaseScreen } from "./BaseScreen";
 import { setStorageUserData } from "../services/storage.services";
 import { GENERAL_STYLES } from "../constants/general.styles";
@@ -6,6 +6,8 @@ import { CardComponent } from "./CardComponent";
 import { InternetArchiveSubject } from "./Books";
 import { useContext } from "react";
 import { TranslationsContext } from "../contexts/translationsContext";
+import { FlatListCard } from "./FlatListCard";
+import { HOME_STYLES } from "../constants/home.styles";
 
 interface BookSubjectSelectionProps {
   shownSubjects: InternetArchiveSubject[];
@@ -32,7 +34,7 @@ export const BookSubjectSelection: React.FC<BookSubjectSelectionProps> = ({
 
     return (
       translationsContext?.translations.bookSubjects[
-        enumKey as keyof typeof InternetArchiveSubject
+      enumKey as keyof typeof InternetArchiveSubject
       ] || subject
     );
   }
@@ -43,17 +45,34 @@ export const BookSubjectSelection: React.FC<BookSubjectSelectionProps> = ({
         data={shownSubjects}
         keyExtractor={(subject) => subject.valueOf()}
         renderItem={({ item, index }) => (
-          <CardComponent
-            label={getSubjectTranslation(item)}
+          <FlatListCard
+            flatListIndex={index}
             onPress={() => {
               const updatedUserData = { ...userData };
               updatedUserData.selectedBookSubject = item.valueOf();
               setStorageUserData(updatedUserData);
               setSubject(item);
             }}
-            paddingLeft={index % 2 !== 0 ? 10 : 0}
-            paddingRight={index % 2 === 0 ? 10 : 0}
-          />
+          >
+            <View style={[
+              GENERAL_STYLES.defaultBorder,
+              GENERAL_STYLES.defaultBorderWidth,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.borderRadiusBig,
+              GENERAL_STYLES.fiveteenPercentWindowHeigthVerticalPadding,
+            ]}>
+              <Text
+                style={[
+                  GENERAL_STYLES.uiText,
+                  GENERAL_STYLES.textBlack,
+                  GENERAL_STYLES.textCenter,
+                  { flexWrap: "wrap" },
+                ]}
+              >
+                {getSubjectTranslation(item)}
+              </Text>
+            </View>
+          </FlatListCard>
         )}
         contentContainerStyle={[
           GENERAL_STYLES.flexGap,

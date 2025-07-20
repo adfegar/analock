@@ -5,7 +5,7 @@ type GameData = SudokuGrid | TTFEGameData;
 
 interface GamesData {
   name: string;
-  data: GameData;
+  data?: GameData;
   won: boolean;
 }
 

@@ -27,10 +27,14 @@ interface HomeTranslations {
 
 interface BooksTranslations {
   donwloadingContent: string;
+  noAuthor: string;
 }
 
 interface GamesTranslations {
   won: string;
+  score: string;
+  gameOver: string;
+  playAgain: string;
 }
 
 interface DiaryTranslations {

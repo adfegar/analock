@@ -2,8 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
 import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
-import { BaseScreen } from "./BaseScreen";
-import { FlatList, Text, TouchableOpacity } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { areDatesEqual } from "../utils/date.utils";
 import { getSettings, getStorageUserData } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
@@ -23,12 +22,14 @@ const DiaryScreen = () => {
   return (
     <DiaryEntriesStack.Navigator
       initialRouteName="DiaryEntries"
-      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
     >
       <DiaryEntriesStack.Screen
         name="DiaryEntries"
         component={DiaryEntriesWrapper}
-        options={{ headerTitle: translations!.home.diary }}
+        options={{
+          headerTitle: translations!.home.diary,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+        }}
       />
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
@@ -37,6 +38,7 @@ const DiaryScreen = () => {
           headerTitle: (route.params?.isUpdate as boolean)
             ? translations?.diary.updateDiaryEntryHeader
             : translations?.diary.addDiaryEntryHeader,
+          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
         })}
       />
     </DiaryEntriesStack.Navigator>
@@ -64,42 +66,42 @@ const DiaryEntries: React.FC = () => {
 
   // Hook to set the loading state when user's diary' entries are loaded
   useEffect(() => {
-    if (userDiaryEntries) {
+    if (userDiaryEntries.length > 0) {
       setLoading(false);
     }
   }, [userDiaryEntries]);
 
   return !error ? (
-    <BaseScreen>
-      <TouchableOpacity
-        disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
-        onPressIn={() => {
-          navigation.push("DiaryEntry", {
-            isUpdate: false,
-            userDiaryEntries,
-            setUserDiaryEntries,
-          });
-        }}
-        style={[
-          GENERAL_STYLES.uiButton,
-          GENERAL_STYLES.floatingRightButton,
-          isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
-          GENERAL_STYLES.buttonDisabled,
-        ]}
-      >
-        <AddIcon />
-      </TouchableOpacity>
+    <View style={[GENERAL_STYLES.generalHorizontalPadding, GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}>
       {loading ? (
         <LoadingIndicator />
       ) : (
         <SafeAreaView>
+          <TouchableOpacity
+            disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
+            onPressIn={() => {
+              navigation.push("DiaryEntry", {
+                isUpdate: false,
+                userDiaryEntries,
+                setUserDiaryEntries,
+              });
+            }}
+            style={[
+              GENERAL_STYLES.uiButton,
+              GENERAL_STYLES.floatingRightButton,
+              isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
+              GENERAL_STYLES.buttonDisabled,
+            ]}
+          >
+            <AddIcon />
+          </TouchableOpacity>
           {userDiaryEntries && (
             <FlatList
               numColumns={2}
               data={userDiaryEntries}
               keyExtractor={(entry) => entry.id.toString()}
               removeClippedSubviews={false}
-              contentContainerStyle={[GENERAL_STYLES.flexGap]}
+              contentContainerStyle={[GENERAL_STYLES.flexGap, GENERAL_STYLES.generalVerticalPadding]}
               renderItem={({ item, index }) => {
                 const diaryEntry = item;
                 return (
@@ -110,6 +112,7 @@ const DiaryEntries: React.FC = () => {
                       GENERAL_STYLES.flexGapSmall,
                       GENERAL_STYLES.flexGrow,
                       GENERAL_STYLES.generalBorder,
+                      GENERAL_STYLES.mediumBorderWidth,
                       {
                         paddingHorizontal: 20,
                         paddingBottom: 10,
@@ -142,11 +145,11 @@ const DiaryEntries: React.FC = () => {
                   >
                     <Text
                       numberOfLines={1}
-                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}
+                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textBold]}
                     >
                       {diaryEntry.title}
                     </Text>
-                    <Text numberOfLines={3} style={[GENERAL_STYLES.uiText]}>
+                    <Text numberOfLines={3} style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
                       {diaryEntry.content.replaceAll(/(\n)/g, " ")}
                     </Text>
                   </TouchableOpacity>
@@ -156,7 +159,7 @@ const DiaryEntries: React.FC = () => {
           )}
         </SafeAreaView>
       )}
-    </BaseScreen>
+    </View>
   ) : (
     <ErrorScreen
       errorText={translationsContext?.translations.errors.genericNetworkError}

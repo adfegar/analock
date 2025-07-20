@@ -18,6 +18,7 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { SettingsContext } from "../contexts/settingsContext";
 import { View } from "react-native";
 import { RegistrationCircle } from "./RegistrationCircle";
+import { colorBlack, colorBlue, colorGreen, colorPink, colorPurple, colorWhiteBackground } from "../constants/constants";
 
 interface Dot {
   key: string;
@@ -47,11 +48,11 @@ interface RegistrationsCalendarProps {
 const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
   userRegistrations,
 }) => {
-  const books: Dot = { key: "book", color: "red", selectedDotColor: "blue" };
-  const games: Dot = { key: "game", color: "blue", selectedDotColor: "blue" };
+  const books: Dot = { key: "book", color: colorGreen, selectedDotColor: "blue" };
+  const games: Dot = { key: "game", color: colorPink, selectedDotColor: "blue" };
   const diaryEntries: Dot = {
     key: "diaryEntry",
-    color: "green",
+    color: colorPurple,
     selectedDotColor: "blue",
   };
   const currentDate = new Date();
@@ -172,12 +173,12 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
             textMonthFontFamily: "Inter",
             textMonthFontWeight: "bold",
             textDayFontFamily: "Inter",
-            arrowColor: "black",
+            arrowColor: colorBlack,
             selectedDayTextColor: "white",
             selectedDayBackgroundColor: "black",
-            todayTextColor: "#AF47D2",
-            backgroundColor: "#e9e9e9",
-            calendarBackground: "#e9e9e9",
+            todayTextColor: colorBlue,
+            backgroundColor: colorWhiteBackground,
+            calendarBackground: colorWhiteBackground,
           }}
           firstDay={settings?.preferences.firstDayOfWeek}
           markingType="multi-dot"
@@ -231,7 +232,7 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
                 ]}
               >
                 <RegistrationCircle color={registration.color} />
-                <Text style={[GENERAL_STYLES.uiText]}>{registration.text}</Text>
+                <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>{registration.text}</Text>
               </View>
             ))}
           </View>

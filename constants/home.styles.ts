@@ -1,17 +1,15 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
+
+const { width, height } = Dimensions.get("window")
 
 export const HOME_STYLES = StyleSheet.create({
   contentCard: {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    width: "100%",
-    height: 240,
+    height: height * 0.3,
+    padding: 20,
     gap: 10,
-  },
-  contentCardText: {
-    fontSize: 18,
-    fontWeight: "bold",
   },
   statusBar: {
     flexDirection: "row",
@@ -22,10 +20,6 @@ export const HOME_STYLES = StyleSheet.create({
     paddingVertical: 30,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
-  },
-  statusBarTimeText: {
-    fontSize: 22,
-    fontWeight: "bold",
   },
   statusBarprogressContainer: {
     alignItems: "center",

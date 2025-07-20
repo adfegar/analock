@@ -1,5 +1,6 @@
 import { Switch, Text, View } from "react-native";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { colorBlack, colorGray } from "../constants/constants";
 
 interface CustomSwitchProps {
   label?: string;
@@ -20,11 +21,11 @@ export const CustomSwitch: React.FC<CustomSwitchProps> = ({
         GENERAL_STYLES.spaceBetween,
       ]}
     >
-      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}>
+      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textBold]}>
         {label}
       </Text>
       <Switch
-        trackColor={{ false: "#767577", true: "black" }}
+        trackColor={{ false: colorGray, true: colorBlack }}
         thumbColor={"white"}
         ios_backgroundColor="#3e3e3e"
         onValueChange={() => {

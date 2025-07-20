@@ -30,9 +30,13 @@ export const spanishTranslations: Translation = {
   books: {
     donwloadingContent:
       "Estamos descargando el contenido.\nPuedes salir de la app y comprobar el estado en la barra de notificaciones.",
+    noAuthor: "Sin autor"
   },
   games: {
     won: "¡Ganaste!\n¡Vuelve mañana para jugar más!",
+    score: "Puntuación",
+    gameOver: "¡Se acabó la partida!",
+    playAgain: "Jugar otra vez"
   },
   diary: {
     add: "Añadir",

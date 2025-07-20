@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
 import {
   getSettings,
   getStorageGamesData,
@@ -8,16 +8,20 @@ import {
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
-import { SUDOKU_GAME_NAME } from "../constants/constants";
+import { colorGray, colorWhiteBackground, SUDOKU_GAME_NAME } from "../constants/constants";
 import { GamesData } from "../types/game";
-import { GENERAL_STYLES } from "../constants/general.styles";
 import { GameWon } from "./GameWon";
 import { GAME_STYLES } from "../constants/games.styles";
 import { generateRandomNumberInInterval } from "../utils/utils";
+import { BaseScreen } from "./BaseScreen";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
 type Coordinates = { row: number; col: number };
+// Calculate cell size
+const { width } = Dimensions.get("window");
+const gridSize = width - 20
+const cellSize = gridSize / 9
 
 export interface SudokuCell {
   value: number | null;
@@ -178,50 +182,52 @@ export const SudokuGame = () => {
   }
 
   return !won ? (
-    <View style={[GAME_STYLES.sudukuContainer, GENERAL_STYLES.whiteBackgroundColor]}>
-      <View style={[GAME_STYLES.sudokuGrid]}>
-        {grid.map((row, rowIndex) => (
-          <View key={rowIndex} style={GAME_STYLES.sudokuRow}>
-            {row.map((cell, colIndex) => (
-              <TouchableOpacity
-                key={`${rowIndex}-${colIndex}`}
-                style={[
-                  GAME_STYLES.sudokuCell,
-                  !(
-                    selectedCell?.row === rowIndex &&
-                    selectedCell?.col === colIndex
-                  )
-                    ? GAME_STYLES.sudokuNormalCell
-                    : GAME_STYLES.sudokuSelectedCell,
-                  (rowIndex + 1) % 3 === 0 && GAME_STYLES.sudokuBottomBorder,
-                  (colIndex + 1) % 3 === 0 && GAME_STYLES.sudokuRightBorder,
-                ]}
-                onPressIn={() => handleCellPress(rowIndex, colIndex)}
-              >
-                <Text
+    <BaseScreen>
+      <View style={[GAME_STYLES.sudukuContainer]}>
+        <View style={[GAME_STYLES.sudokuGrid]}>
+          {grid.map((row, rowIndex) => (
+            <View key={rowIndex} style={GAME_STYLES.sudokuRow}>
+              {row.map((cell, colIndex) => (
+                <TouchableOpacity
+                  key={`${rowIndex}-${colIndex}`}
                   style={[
-                    GAME_STYLES.sudoukuCellText,
-                    grid[rowIndex][colIndex].valid
-                      ? GAME_STYLES.sudokuValidCell
-                      : GAME_STYLES.sudokuNotValidCell,
+                    sudokuStyles.sudokuCell,
+                    !(
+                      selectedCell?.row === rowIndex &&
+                      selectedCell?.col === colIndex
+                    )
+                      ? GAME_STYLES.sudokuNormalCell
+                      : GAME_STYLES.sudokuSelectedCell,
+                    (rowIndex + 1) % 3 === 0 && GAME_STYLES.sudokuBottomBorder,
+                    (colIndex + 1) % 3 === 0 && GAME_STYLES.sudokuRightBorder,
                   ]}
+                  onPressIn={() => handleCellPress(rowIndex, colIndex)}
                 >
-                  {cell.value || ""}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ))}
+                  <Text
+                    style={[
+                      GAME_STYLES.sudoukuCellText,
+                      grid[rowIndex][colIndex].valid
+                        ? GAME_STYLES.sudokuValidCell
+                        : GAME_STYLES.sudokuNotValidCell,
+                    ]}
+                  >
+                    {cell.value || ""}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </View>
+        <NumberPad
+          selectedCell={selectedCell}
+          grid={grid}
+          setGrid={setGrid}
+          setSelectedCell={setSelectedCell}
+          won={won}
+          setWon={setWon}
+        />
       </View>
-      <NumberPad
-        selectedCell={selectedCell}
-        grid={grid}
-        setGrid={setGrid}
-        setSelectedCell={setSelectedCell}
-        won={won}
-        setWon={setWon}
-      />
-    </View>
+    </BaseScreen>
   ) : (
     <GameWon />
   );
@@ -303,3 +309,16 @@ const NumberPad: React.FC<NumberPadProps> = ({
     </View>
   );
 };
+
+// Styles that depend from local variables
+const sudokuStyles = StyleSheet.create({
+  sudokuCell: {
+    width: cellSize,
+    height: cellSize,
+    borderWidth: 0.5,
+    borderColor: colorGray,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colorWhiteBackground,
+  },
+})

@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { SETTINGS_STYLES } from "../constants/settings.styles";
+import { colorBlack, colorWhite, colorWhiteBackground } from "../constants/constants";
 
 interface ButtonGroupProps {
   label?: string;
@@ -17,7 +18,11 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({
   return (
     <View style={[GENERAL_STYLES.flexCol, { gap: 5 }]}>
       {label && (
-        <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}>
+        <Text style={[
+          GENERAL_STYLES.uiText,
+          GENERAL_STYLES.textBlack,
+          GENERAL_STYLES.textBold
+        ]}>
           {label}
         </Text>
       )}
@@ -34,13 +39,13 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({
             key={index}
             style={[
               {
-                backgroundColor: selectedIndex !== index ? "#e9e9e9" : "black",
-                padding: 10,
+                backgroundColor: selectedIndex !== index ? colorWhiteBackground : colorBlack,
                 borderTopLeftRadius: index !== 0 ? 0 : 9,
                 borderBottomLeftRadius: index !== 0 ? 0 : 9,
                 borderTopRightRadius: index !== buttons.length - 1 ? 0 : 9,
                 borderBottomRightRadius: index !== buttons.length - 1 ? 0 : 9,
                 flex: 1,
+                padding: 10,
               },
             ]}
             onPressIn={() => {
@@ -50,8 +55,9 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({
             <Text
               style={[
                 GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBlack,
                 GENERAL_STYLES.textCenter,
-                { color: selectedIndex !== index ? "black" : "white" },
+                { color: selectedIndex !== index ? colorBlack : colorWhite },
               ]}
             >
               {button.text}
