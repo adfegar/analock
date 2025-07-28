@@ -12,12 +12,12 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { CalendarIcon } from "./icons/CalendarIcon";
 import { SettingsIcon } from "./icons/SettingsIcon";
 import { ProfileCircleContainer } from "./ProfileCircleContainer";
-import { ProfileIcon } from "./icons/ProfileIcon";
 import { useGetUserActivityRegistrations } from "../hooks/useGetUserActivityRegistrations";
 import { formatString } from "../utils/string.utils";
 import Settings from "./Settings";
 import { SettingsContext } from "../contexts/settingsContext";
 import { NavigationHeader } from "./NavigationHeader";
+import { GamesIcon } from "./icons/GamesIcon";
 
 export type MySpaceStackParamList = {
   MySpace: undefined;
@@ -30,15 +30,15 @@ const MySpaceScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
   const MySpaceStack = createNativeStackNavigator();
   return (
-    <MySpaceStack.Navigator
-      initialRouteName="MySpace"
-    >
+    <MySpaceStack.Navigator initialRouteName="MySpace">
       <MySpaceStack.Screen
         name="MySpace"
         component={MySpace}
         options={{
           headerTitle: translations?.home.profile,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={true} />
+          ),
         }}
       />
       <MySpaceStack.Screen
@@ -46,14 +46,18 @@ const MySpaceScreen = () => {
         component={CalendarScreen}
         options={{
           headerTitle: translations?.profile.calendar,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={false} />
+          ),
         }}
       />
       <MySpaceStack.Screen
         name="Settings"
         component={Settings}
         options={{
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />,
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={false} />
+          ),
           headerTitle: translations?.profile.settings,
         }}
       />
@@ -113,10 +117,16 @@ function MySpace() {
         ]}
       >
         <ProfileCircleContainer iconSize={64}>
-          <ProfileIcon width={64} heigth={64} />
+          <GamesIcon />
         </ProfileCircleContainer>
         <View style={[GENERAL_STYLES.flexCol, { alignSelf: "flex-start" }]}>
-          <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textExtraBig]}>
+          <Text
+            style={[
+              GENERAL_STYLES.uiText,
+              GENERAL_STYLES.textBlack,
+              GENERAL_STYLES.textExtraBig,
+            ]}
+          >
             {userData.userName !== undefined ? userData.userName : "Guest"}
           </Text>
           {profileTranslations &&
@@ -131,7 +141,13 @@ function MySpace() {
       {!error && userSettingsContext?.settings.general.enableOnlineFeatures && (
         <View>
           <View style={{ marginBottom: 20 }}>
-            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textTitle]}>
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBlack,
+                GENERAL_STYLES.textTitle,
+              ]}
+            >
               {profileTranslations?.weeklyProgress}
             </Text>
             <WeeklyActivityChart userRegistrations={userRegistrations} />

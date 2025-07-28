@@ -26,12 +26,12 @@ export const localeFirstDayOfWeekMap = new Map<string, number>([
   ["nl-NL", 1],
 ]);
 
-// Color constants 
-export const colorGreen = "#8EBE86"
-export const colorPink = "#D397BE"
-export const colorPurple = "#968FD2"
-export const colorWhite = "#D9D9D9"
-export const colorWhiteBackground = "#E5E1DE"
-export const colorBlack = "#343233"
-export const colorGray = "#605E5E"
-export const colorBlue = "#8FADD2"
+// Color constants
+export const colorGreen = "#8EBE86";
+export const colorPink = "#D397BE";
+export const colorPurple = "#968FD2";
+export const colorWhite = "#D9D9D9";
+export const colorWhiteBackground = "#E5E1DE";
+export const colorBlack = "#343233";
+export const colorGray = "#605E5E";
+export const colorBlue = "#8FADD2";

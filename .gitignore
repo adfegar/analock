@@ -3,6 +3,8 @@
 node_modules
 .idea
 .cxx
+.jest
+.git
 # Android
 android/.gradle/
 android/.idea/
@@ -12,5 +14,3 @@ android/local.properties
 android/*.iml
 android/app/*.iml
 *.apk
-# Jest
-.jest
