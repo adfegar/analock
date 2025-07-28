@@ -20,15 +20,15 @@ const DiaryScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
   const DiaryEntriesStack = createNativeStackNavigator();
   return (
-    <DiaryEntriesStack.Navigator
-      initialRouteName="DiaryEntries"
-    >
+    <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
       <DiaryEntriesStack.Screen
         name="DiaryEntries"
         component={DiaryEntriesWrapper}
         options={{
           headerTitle: translations!.home.diary,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={true} />
+          ),
         }}
       />
       <DiaryEntriesStack.Screen
@@ -38,7 +38,9 @@ const DiaryScreen = () => {
           headerTitle: (route.params?.isUpdate as boolean)
             ? translations?.diary.updateDiaryEntryHeader
             : translations?.diary.addDiaryEntryHeader,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={false} />
+          ),
         })}
       />
     </DiaryEntriesStack.Navigator>
@@ -72,7 +74,13 @@ const DiaryEntries: React.FC = () => {
   }, [userDiaryEntries]);
 
   return !error ? (
-    <View style={[GENERAL_STYLES.generalHorizontalPadding, GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}>
+    <View
+      style={[
+        GENERAL_STYLES.generalHorizontalPadding,
+        GENERAL_STYLES.whiteBackgroundColor,
+        GENERAL_STYLES.flexGrow,
+      ]}
+    >
       {loading ? (
         <LoadingIndicator />
       ) : (
@@ -90,7 +98,7 @@ const DiaryEntries: React.FC = () => {
               GENERAL_STYLES.uiButton,
               GENERAL_STYLES.floatingRightButton,
               isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
-              GENERAL_STYLES.buttonDisabled,
+                GENERAL_STYLES.buttonDisabled,
             ]}
           >
             <AddIcon />
@@ -101,7 +109,10 @@ const DiaryEntries: React.FC = () => {
               data={userDiaryEntries}
               keyExtractor={(entry) => entry.id.toString()}
               removeClippedSubviews={false}
-              contentContainerStyle={[GENERAL_STYLES.flexGap, GENERAL_STYLES.generalVerticalPadding]}
+              contentContainerStyle={[
+                GENERAL_STYLES.flexGap,
+                GENERAL_STYLES.generalVerticalPadding,
+              ]}
               renderItem={({ item, index }) => {
                 const diaryEntry = item;
                 return (
@@ -119,13 +130,13 @@ const DiaryEntries: React.FC = () => {
                         paddingTop: 5,
                         marginRight:
                           index !== userDiaryEntries.length - 1 &&
-                            index % 2 === 0
+                          index % 2 === 0
                             ? 10
                             : 0,
                         marginLeft:
                           userDiaryEntries.length % 2 !== 0 &&
-                            index !== userDiaryEntries.length - 1 &&
-                            index % 2 !== 0
+                          index !== userDiaryEntries.length - 1 &&
+                          index % 2 !== 0
                             ? 10
                             : 0,
                       },
@@ -145,11 +156,18 @@ const DiaryEntries: React.FC = () => {
                   >
                     <Text
                       numberOfLines={1}
-                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textBold]}
+                      style={[
+                        GENERAL_STYLES.uiText,
+                        GENERAL_STYLES.textBlack,
+                        GENERAL_STYLES.textBold,
+                      ]}
                     >
                       {diaryEntry.title}
                     </Text>
-                    <Text numberOfLines={3} style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
+                    <Text
+                      numberOfLines={3}
+                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}
+                    >
                       {diaryEntry.content.replaceAll(/(\n)/g, " ")}
                     </Text>
                   </TouchableOpacity>

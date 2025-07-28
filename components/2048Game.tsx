@@ -19,7 +19,13 @@ import {
 } from "../services/storage.services";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
-import { colorBlack, colorGray, colorWhite, colorWhiteBackground, SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
+import {
+  colorBlack,
+  colorGray,
+  colorWhiteBackground,
+  SWIPE_THRESHOLD,
+  TTFE_GAME_NAME,
+} from "../constants/constants";
 import { TTFEGameData } from "../types/game";
 import { GameWon } from "./GameWon";
 import { GENERAL_STYLES } from "../constants/general.styles";
@@ -36,18 +42,18 @@ export type TTFEBoard = number[][];
  *  Interface representing a move status.
  */
 interface BoardMoveStatus {
-  updatedRow: number[],
-  moveScore: number
-  moved: boolean
-  moveWon: boolean
+  updatedRow: number[];
+  moveScore: number;
+  moved: boolean;
+  moveWon: boolean;
 }
 
 // Calculate board and cell size
 const { width } = Dimensions.get("window");
 const BOARD_SIZE = width - 40;
-const CELL_SIZE = (BOARD_SIZE / 4) - 2;
+const CELL_SIZE = BOARD_SIZE / 4 - 2;
 const CELL_MARGIN = 4;
-const BOARD_DIMENSIONS = 4
+const BOARD_DIMENSIONS = 4;
 
 // Set color for each possible value
 const colors: Record<number, string> = {
@@ -66,7 +72,6 @@ const colors: Record<number, string> = {
 };
 
 export function Game2048() {
-  const gamesData = getStorageGamesData();
   const ttfeGameData = getStorageGamesData()?.find(
     (data) => data.name === TTFE_GAME_NAME,
   );
@@ -76,7 +81,7 @@ export function Game2048() {
   const [won, setWon] = useState<boolean>(
     ttfeGameData ? ttfeGameData.won : false,
   );
-  const gamesTranslations = useContext(TranslationsContext)?.translations.games
+  const gamesTranslations = useContext(TranslationsContext)?.translations.games;
 
   useSaveOnExit({
     name: TTFE_GAME_NAME,
@@ -142,42 +147,42 @@ export function Game2048() {
 
   const moveTiles = useCallback(
     (direction: Direction) => {
-      if (gameOver || won) return
+      if (gameOver || won) return;
 
-      const isHorizontalMove = direction !== 'up' && direction !== 'down'
-      let newBoard = board.map((row) => [...row])
-      let newScore = score
-      let moved = false
-      let moveWon = false
+      const isHorizontalMove = direction !== "up" && direction !== "down";
+      let newBoard = board.map((row) => [...row]);
+      let newScore = score;
+      let moved = false;
+      let moveWon = false;
 
       for (let i = 0; i < newBoard.length; i++) {
-        let moveStatus: BoardMoveStatus
+        let moveStatus: BoardMoveStatus;
 
         // update board row/column depending on move direction
         if (isHorizontalMove) {
-          moveStatus = performRowMove(newBoard[i], direction)
-          newBoard[i] = moveStatus.updatedRow
+          moveStatus = performRowMove(newBoard[i], direction);
+          newBoard[i] = moveStatus.updatedRow;
         } else {
-          moveStatus = performRowMove(getMatrixColumn(newBoard, i), direction)
-          setMatrixColumn(newBoard, moveStatus.updatedRow, i)
+          moveStatus = performRowMove(getMatrixColumn(newBoard, i), direction);
+          setMatrixColumn(newBoard, moveStatus.updatedRow, i);
         }
 
         // update common fields
-        newScore += moveStatus.moveScore
+        newScore += moveStatus.moveScore;
         if (moveStatus.moved) {
-          moved = true
+          moved = true;
         }
         if (moveStatus.moveWon) {
-          moveWon = true
-          break
+          moveWon = true;
+          break;
         }
       }
 
       // if board moved
       if (moved) {
-        addNewTile(newBoard)
-        setBoard(newBoard)
-        setScore(newScore)
+        addNewTile(newBoard);
+        setBoard(newBoard);
+        setScore(newScore);
         if (moveWon && !ttfeGameData?.won) {
           const userSettings = getSettings();
           if (userSettings.general.enableOnlineFeatures) {
@@ -195,38 +200,42 @@ export function Game2048() {
           setGameOver(true);
         }
       }
-    }, [board, gameOver, score],
-  )
+    },
+    [board, gameOver, score],
+  );
 
   /**
    * Performs the move of the given row.
-   * 
-   * @param row the row in which perform the move 
-   * @param direction the move direction 
+   *
+   * @param row the row in which perform the move
+   * @param direction the move direction
    * @returns the move status
    */
-  function performRowMove(row: number[], direction: Direction): BoardMoveStatus {
-    const positive = direction == 'down' || direction == 'right'
-    let updatedRow = row.filter(value => value > 0)
+  function performRowMove(
+    row: number[],
+    direction: Direction,
+  ): BoardMoveStatus {
+    const positive = direction == "down" || direction == "right";
+    let updatedRow = row.filter((value) => value > 0);
     const moveStatus: BoardMoveStatus = {
       updatedRow: row,
       moveScore: 0,
       moved: false,
-      moveWon: false
-    }
+      moveWon: false,
+    };
 
     if (updatedRow.length > 0) {
       for (let i = 1; i < updatedRow.length; i++) {
         if (updatedRow[i] === updatedRow[i - 1]) {
           // update cell value
-          updatedRow[i] *= 2
+          updatedRow[i] *= 2;
           // update score and check if won
-          moveStatus.moveScore += updatedRow[i]
+          moveStatus.moveScore += updatedRow[i];
           if (updatedRow[i] >= 2048) {
-            moveStatus.moveWon = true
+            moveStatus.moveWon = true;
           }
           // remove previous cell from array
-          updatedRow.splice(i - 1, 1)
+          updatedRow.splice(i - 1, 1);
         }
       }
 
@@ -234,16 +243,22 @@ export function Game2048() {
       // if positive, fill with 0s the left
       // else, fill with 0s the right
       if (positive) {
-        updatedRow = [...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0), ...updatedRow]
+        updatedRow = [
+          ...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0),
+          ...updatedRow,
+        ];
       } else {
-        updatedRow = [...updatedRow, ...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0)]
+        updatedRow = [
+          ...updatedRow,
+          ...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0),
+        ];
       }
 
-      moveStatus.updatedRow = updatedRow
-      moveStatus.moved = row !== updatedRow
+      moveStatus.updatedRow = updatedRow;
+      moveStatus.moved = row !== updatedRow;
     }
 
-    return moveStatus
+    return moveStatus;
   }
 
   /**
@@ -303,13 +318,13 @@ export function Game2048() {
     if (value >= 1024) return 20;
     if (value >= 100) return 24;
     return 32;
-  };
+  }
 
   function resetGame(): void {
     setBoard(generateEmptyBoard());
     setScore(0);
     setGameOver(false);
-  };
+  }
 
   return !won ? (
     <BaseScreen>
@@ -345,30 +360,40 @@ export function Game2048() {
           </Animated.View>
         </GestureDetector>
 
-
         <View style={GAME_STYLES.ttfeScoreContainer}>
-          <Text style={GAME_STYLES.ttfeScoreLabel}>{`${gamesTranslations?.score}:`}</Text>
+          <Text
+            style={GAME_STYLES.ttfeScoreLabel}
+          >{`${gamesTranslations?.score}:`}</Text>
           <Text style={GAME_STYLES.ttfeScoreValue}>{score}</Text>
         </View>
 
         {gameOver && (
-          <View style={[
-            GAME_STYLES.ttfeGameOver,
-            GENERAL_STYLES.flexCol,
-            GENERAL_STYLES.flexGap,
-            GENERAL_STYLES.alignCenter,
-            GENERAL_STYLES.justifyCenter
-          ]}>
-            <Text style={[GAME_STYLES.ttfeGameOverText, GENERAL_STYLES.textCenter]}>{gamesTranslations?.gameOver}</Text>
+          <View
+            style={[
+              GAME_STYLES.ttfeGameOver,
+              GENERAL_STYLES.flexCol,
+              GENERAL_STYLES.flexGap,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.justifyCenter,
+            ]}
+          >
+            <Text
+              style={[GAME_STYLES.ttfeGameOverText, GENERAL_STYLES.textCenter]}
+            >
+              {gamesTranslations?.gameOver}
+            </Text>
             <TouchableOpacity
               style={[
                 GENERAL_STYLES.grayBackgroundColor,
                 GENERAL_STYLES.generalPadding,
                 GENERAL_STYLES.alignCenter,
-                GENERAL_STYLES.generalBorder
+                GENERAL_STYLES.generalBorder,
               ]}
-              onPress={resetGame}>
-              <Text style={GAME_STYLES.ttfeResetButtonText}>{gamesTranslations?.playAgain}</Text>
+              onPress={resetGame}
+            >
+              <Text style={GAME_STYLES.ttfeResetButtonText}>
+                {gamesTranslations?.playAgain}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
