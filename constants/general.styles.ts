@@ -1,7 +1,7 @@
-import { Dimensions, StyleSheet, useWindowDimensions } from "react-native";
-import { colorBlack, colorGray, colorWhite, colorWhiteBackground } from "./constants";
+import { Dimensions, StyleSheet } from "react-native";
+import { colorBlack, colorGray, colorWhiteBackground } from "./constants";
 
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 export const GENERAL_STYLES = StyleSheet.create({
   baseScreenPadding: {
@@ -18,28 +18,28 @@ export const GENERAL_STYLES = StyleSheet.create({
     paddingHorizontal: 20,
   },
   generalVerticalPadding: {
-    paddingVertical: 20
+    paddingVertical: 20,
   },
   paddingBottom: {
     paddingBottom: 20,
   },
   paddingVerticalMedium: {
-    paddingVertical: 40
+    paddingVertical: 40,
   },
   paddingVerticalBig: {
-    paddingVertical: 70
+    paddingVertical: 70,
   },
   fivePercentWindowHeigthVerticalPadding: {
-    paddingVertical: height * 0.05
+    paddingVertical: height * 0.05,
   },
   tenPercentWindowHeigthVerticalPadding: {
-    paddingVertical: height * 0.1
+    paddingVertical: height * 0.1,
   },
   fiveteenPercentWindowHeigthVerticalPadding: {
-    paddingVertical: height * 0.15
+    paddingVertical: height * 0.15,
   },
   tenPercentWindowWidthHorizontalPadding: {
-    paddingHorizontal: width * 0.1
+    paddingHorizontal: width * 0.1,
   },
   marginTop: {
     marginTop: 10,
@@ -51,7 +51,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     flexDirection: "row",
   },
   flexGapBig: {
-    gap: 40
+    gap: 40,
   },
   flexGap: {
     gap: 20,
@@ -69,7 +69,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     alignItems: "center",
   },
   alignStart: {
-    alignItems: 'flex-start'
+    alignItems: "flex-start",
   },
   uiText: {
     fontFamily: "Inter",
@@ -83,16 +83,16 @@ export const GENERAL_STYLES = StyleSheet.create({
     marginBottom: 40,
   },
   textSmall: {
-    fontSize: 14
+    fontSize: 14,
   },
   textMedium: {
-    fontSize: 16
+    fontSize: 16,
   },
   textBig: {
-    fontSize: 22
+    fontSize: 22,
   },
   textExtraBig: {
-    fontSize: 25
+    fontSize: 25,
   },
   textCenter: {
     textAlign: "center",
@@ -108,10 +108,10 @@ export const GENERAL_STYLES = StyleSheet.create({
     color: colorBlack,
   },
   textWhite: {
-    color: colorWhite
+    color: colorWhiteBackground,
   },
   textGray: {
-    color: colorGray
+    color: colorGray,
   },
   navigationHeaderText: {
     fontFamily: "Inter",
@@ -124,7 +124,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     backgroundColor: colorWhiteBackground,
   },
   grayBackgroundColor: {
-    backgroundColor: colorBlack
+    backgroundColor: colorBlack,
   },
   justifyCenter: {
     justifyContent: "center",
@@ -148,16 +148,16 @@ export const GENERAL_STYLES = StyleSheet.create({
     borderColor: colorBlack,
   },
   defaultBorderWidth: {
-    borderWidth: 2.5
+    borderWidth: 2.5,
   },
   mediumBorderWidth: {
-    borderWidth: 2
+    borderWidth: 2,
   },
   borderRadiusBig: {
-    borderRadius: 35
+    borderRadius: 35,
   },
   borderTopDisabled: {
-    borderTopWidth: 0
+    borderTopWidth: 0,
   },
   uiButton: {
     borderStyle: "solid",
@@ -182,7 +182,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     justifyContent: "center",
     elevation: 10,
     zIndex: 10,
-    backgroundColor: colorBlack
+    backgroundColor: colorBlack,
   },
   navigationHeader: {
     flexDirection: "row",
@@ -196,5 +196,5 @@ export const GENERAL_STYLES = StyleSheet.create({
   },
   navigationHeaderSideBalanceSpace: {
     width: 40,
-  }
+  },
 });
