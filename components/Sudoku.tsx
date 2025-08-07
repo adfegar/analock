@@ -1,27 +1,41 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
 import {
   getSettings,
   getStorageGamesData,
   getStorageUserData,
 } from "../services/storage.services";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
-import { addUserGameRegistration } from "../services/activityRegistrations.services";
+import {
+  ActivityRegistration,
+  addUserGameRegistration,
+} from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
-import { colorGray, colorWhiteBackground, SUDOKU_GAME_NAME } from "../constants/constants";
+import {
+  colorGray,
+  colorWhiteBackground,
+  SUDOKU_GAME_NAME,
+} from "../constants/constants";
 import { GamesData } from "../types/game";
 import { GameWon } from "./GameWon";
 import { GAME_STYLES } from "../constants/games.styles";
 import { generateRandomNumberInInterval } from "../utils/utils";
 import { BaseScreen } from "./BaseScreen";
+import { ActivityRegistrationsContext } from "../contexts/activityRegistrationsContext";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
 type Coordinates = { row: number; col: number };
 // Calculate cell size
 const { width } = Dimensions.get("window");
-const gridSize = width - 20
-const cellSize = gridSize / 9
+const gridSize = width - 20;
+const cellSize = gridSize / 9;
 
 export interface SudokuCell {
   value: number | null;
@@ -91,7 +105,7 @@ function fillCells(grid: SudokuGrid): boolean {
   if (!isEmpty) return true;
 
   for (let num = 1; num <= 9; num++) {
-    const randomNum = generateRandomNumberInInterval(1, 9)
+    const randomNum = generateRandomNumberInInterval(1, 9);
     if (isValid(grid, randomNum, { row, col })) {
       grid[row][col].value = randomNum;
       grid[row][col].expectedValue = randomNum;
@@ -118,7 +132,12 @@ function generateSudoku(sudokuGameData: GamesData | undefined): SudokuGrid {
         Array(9)
           .fill(null)
           .map(() => {
-            return { value: null, expectedValue: -1, editable: false, valid: true };
+            return {
+              value: null,
+              expectedValue: -1,
+              editable: false,
+              valid: true,
+            };
           }),
       );
     // Generate a solved Sudoku and then hide numbers to create a puzzle
@@ -238,7 +257,7 @@ interface NumberPadProps {
   grid: SudokuGrid;
   setGrid: React.Dispatch<React.SetStateAction<SudokuGrid>>;
   setSelectedCell: React.Dispatch<React.SetStateAction<Coordinates | null>>;
-  won: boolean
+  won: boolean;
   setWon: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -253,6 +272,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
   won,
   setWon,
 }) => {
+  const activityRegistrationsContext = useContext(ActivityRegistrationsContext);
   /**
    * Handler function for
    */
@@ -275,7 +295,10 @@ const NumberPad: React.FC<NumberPadProps> = ({
 
       if (isSolved && !won) {
         const userSettings = getSettings();
-        if (userSettings.general.enableOnlineFeatures) {
+        if (
+          userSettings.general.enableOnlineFeatures &&
+          activityRegistrationsContext
+        ) {
           const currentDate = new Date();
           const userData = getStorageUserData();
 
@@ -284,7 +307,25 @@ const NumberPad: React.FC<NumberPadProps> = ({
             gameName: SUDOKU_GAME_NAME,
             registrationDate: currentDate.valueOf(),
             userId: userData.userId,
-          });
+          })
+            .then((savedGameRegistration) => {
+              // Update context adding saved book registration
+              const activityRegistrations: ActivityRegistration[] = [
+                savedGameRegistration,
+                ...activityRegistrationsContext.activityRegistrationsData
+                  .activityRegistrations,
+              ];
+              activityRegistrationsContext.setActivityRegistrationsData({
+                activityRegistrations,
+                error: false,
+              });
+            })
+            .catch(() => {
+              activityRegistrationsContext.setActivityRegistrationsData({
+                activityRegistrations: [],
+                error: true,
+              });
+            });
         }
         setWon(true);
       }
@@ -321,4 +362,4 @@ const sudokuStyles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colorWhiteBackground,
   },
-})
+});
