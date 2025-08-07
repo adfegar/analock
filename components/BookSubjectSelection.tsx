@@ -2,12 +2,10 @@ import { FlatList, Text, View } from "react-native";
 import { BaseScreen } from "./BaseScreen";
 import { setStorageUserData } from "../services/storage.services";
 import { GENERAL_STYLES } from "../constants/general.styles";
-import { CardComponent } from "./CardComponent";
 import { InternetArchiveSubject } from "./Books";
 import { useContext } from "react";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { FlatListCard } from "./FlatListCard";
-import { HOME_STYLES } from "../constants/home.styles";
 
 interface BookSubjectSelectionProps {
   shownSubjects: InternetArchiveSubject[];
@@ -34,7 +32,7 @@ export const BookSubjectSelection: React.FC<BookSubjectSelectionProps> = ({
 
     return (
       translationsContext?.translations.bookSubjects[
-      enumKey as keyof typeof InternetArchiveSubject
+        enumKey as keyof typeof InternetArchiveSubject
       ] || subject
     );
   }
@@ -54,13 +52,15 @@ export const BookSubjectSelection: React.FC<BookSubjectSelectionProps> = ({
               setSubject(item);
             }}
           >
-            <View style={[
-              GENERAL_STYLES.defaultBorder,
-              GENERAL_STYLES.defaultBorderWidth,
-              GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.borderRadiusBig,
-              GENERAL_STYLES.fiveteenPercentWindowHeigthVerticalPadding,
-            ]}>
+            <View
+              style={[
+                GENERAL_STYLES.defaultBorder,
+                GENERAL_STYLES.defaultBorderWidth,
+                GENERAL_STYLES.alignCenter,
+                GENERAL_STYLES.borderRadiusBig,
+                GENERAL_STYLES.fiveteenPercentWindowHeigthVerticalPadding,
+              ]}
+            >
               <Text
                 style={[
                   GENERAL_STYLES.uiText,

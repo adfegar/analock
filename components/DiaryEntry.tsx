@@ -14,25 +14,20 @@ import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
 import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
+import {
+  ActivityCompletionContext,
+  ActivityKind,
+} from "../contexts/activityCompletionContext";
 
 const DiaryEntryDetailScreen: React.FC = ({ route }) => {
-  const {
-    id,
-    title,
-    content,
-    publishDate,
-    isUpdate,
-    userDiaryEntries,
-    setUserDiaryEntries,
-  } = route.params;
+  const { id, title, content, publishDate, isUpdate } = route.params;
   const [titleInput, setTitleInput] = useState<string>(!isUpdate ? "" : title);
   const [contentInput, setContentInput] = useState<string>(
     !isUpdate ? "" : content,
   );
   const translationsContext = useContext(TranslationsContext);
   const navigation = useNavigation();
-  const activityCompletionContext = useContext(ActivityCompletionContext)
+  const activityCompletionContext = useContext(ActivityCompletionContext);
 
   return (
     translationsContext && (
@@ -118,15 +113,24 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
                   };
                   addUserDiaryEntry(diaryEntry)
                     .then((savedEntry) => {
-                      if (savedEntry) {
-                        const diaryEntries = [savedEntry, ...userDiaryEntries];
-                        setUserDiaryEntries(diaryEntries);
+                      if (savedEntry && activityCompletionContext) {
                         // Update activity completion context
-                        if (activityCompletionContext) {
-                          const updatedActivityCompletionMap = new Map(activityCompletionContext.activityCompletionMap)
-                          updatedActivityCompletionMap.set(ActivityKind.Diary, diaryEntries)
-                          activityCompletionContext.setActivityCompletionMap(updatedActivityCompletionMap)
-                        }
+                        const updatedActivityCompletionMap = new Map(
+                          activityCompletionContext.activityCompletionMap,
+                        );
+                        const currentDiaryEntriesData =
+                          updatedActivityCompletionMap.get(
+                            ActivityKind.Diary,
+                          ) as DiaryEntriesData;
+                        updatedActivityCompletionMap.set(ActivityKind.Diary, {
+                          diaryEntries: [
+                            savedEntry,
+                            ...currentDiaryEntriesData.diaryEntries,
+                          ],
+                        });
+                        activityCompletionContext.setActivityCompletionMap(
+                          updatedActivityCompletionMap,
+                        );
                       }
                     })
                     .catch((err) => {
@@ -140,13 +144,26 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
                   };
                   updateUserDiaryEntry(id, diaryEntry)
                     .then((updatedEntry) => {
-                      if (updatedEntry) {
-                        const diaryEntries = [...userDiaryEntries];
-                        const indexToBeUpdated = diaryEntries.findIndex(
-                          (diaryEntry) => diaryEntry.id === updatedEntry.id,
+                      if (updatedEntry && activityCompletionContext) {
+                        const updatedActivityCompletionMap = new Map(
+                          activityCompletionContext.activityCompletionMap,
                         );
-                        diaryEntries[indexToBeUpdated] = updatedEntry;
-                        setUserDiaryEntries(diaryEntries);
+                        const currentDiaryEntriesData =
+                          updatedActivityCompletionMap.get(
+                            ActivityKind.Diary,
+                          ) as DiaryEntriesData;
+                        const indexToBeUpdated =
+                          currentDiaryEntriesData.diaryEntries.findIndex(
+                            (diaryEntry) => diaryEntry.id === updatedEntry.id,
+                          );
+                        currentDiaryEntriesData.diaryEntries[indexToBeUpdated] =
+                          updatedEntry;
+                        updatedActivityCompletionMap.set(ActivityKind.Diary, {
+                          diaryEntries: currentDiaryEntriesData.diaryEntries,
+                        });
+                        activityCompletionContext.setActivityCompletionMap(
+                          updatedActivityCompletionMap,
+                        );
                       }
                     })
                     .catch((err) => console.error(err));

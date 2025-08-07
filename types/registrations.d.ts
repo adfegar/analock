@@ -33,3 +33,8 @@ interface AddGameRegistrationRequest {
   registrationDate: number;
   userId: number;
 }
+
+interface ActivityRegistrationsData {
+  activityRegistrations: ActivityRegistration[];
+  error: boolean;
+}

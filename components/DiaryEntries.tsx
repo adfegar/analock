@@ -1,10 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
-import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { areDatesEqual } from "../utils/date.utils";
-import { getSettings, getStorageUserData } from "../services/storage.services";
+import { getSettings } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { TranslationsContext } from "../contexts/translationsContext";
@@ -15,10 +14,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AddIcon } from "./icons/AddIcon";
 import { ErrorScreen } from "./ErrorScreen";
 import { NavigationHeader } from "./NavigationHeader";
+import {
+  ActivityCompletionContext,
+  ActivityKind,
+} from "../contexts/activityCompletionContext";
+
+type DiaryStackParamList = {
+  DiaryEntries: undefined;
+  DiaryEntry: { isUpdate: boolean };
+};
 
 const DiaryScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
-  const DiaryEntriesStack = createNativeStackNavigator();
+  const DiaryEntriesStack = createNativeStackNavigator<DiaryStackParamList>();
   return (
     <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
       <DiaryEntriesStack.Screen
@@ -58,22 +66,29 @@ const DiaryEntriesWrapper: React.FC = () => {
 };
 
 const DiaryEntries: React.FC = () => {
-  const userData = getStorageUserData();
-  const { userDiaryEntries, setUserDiaryEntries, error } = useUserDiaryEntries(
-    userData.userId,
-  );
   const [loading, setLoading] = useState<boolean>(true);
-  const navigation = useNavigation();
+  const navigation = useNavigation<DiaryStackParamList>();
   const translationsContext = useContext(TranslationsContext);
-
+  const activityCompletionContext = useContext(ActivityCompletionContext);
+  const [diaryEntriesData, setDiaryEntriesData] = useState<DiaryEntriesData>({
+    diaryEntries: [],
+  });
   // Hook to set the loading state when user's diary' entries are loaded
   useEffect(() => {
-    if (userDiaryEntries.length > 0) {
-      setLoading(false);
-    }
-  }, [userDiaryEntries]);
+    if (activityCompletionContext) {
+      const diaryEntriesData =
+        activityCompletionContext.activityCompletionMap.get(
+          ActivityKind.Diary,
+        ) as DiaryEntriesData;
 
-  return !error ? (
+      if (diaryEntriesData?.diaryEntries.length > 0) {
+        setLoading(false);
+      }
+      setDiaryEntriesData(diaryEntriesData);
+    }
+  }, [activityCompletionContext]);
+
+  return !diaryEntriesData?.error ? (
     <View
       style={[
         GENERAL_STYLES.generalHorizontalPadding,
@@ -86,27 +101,30 @@ const DiaryEntries: React.FC = () => {
       ) : (
         <SafeAreaView>
           <TouchableOpacity
-            disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
+            disabled={isAddDiaryEntryButtonDisabled(
+              diaryEntriesData.diaryEntries,
+              loading,
+            )}
             onPressIn={() => {
               navigation.push("DiaryEntry", {
                 isUpdate: false,
-                userDiaryEntries,
-                setUserDiaryEntries,
               });
             }}
             style={[
               GENERAL_STYLES.uiButton,
               GENERAL_STYLES.floatingRightButton,
-              isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
-                GENERAL_STYLES.buttonDisabled,
+              isAddDiaryEntryButtonDisabled(
+                diaryEntriesData.diaryEntries,
+                loading,
+              ) && GENERAL_STYLES.buttonDisabled,
             ]}
           >
             <AddIcon />
           </TouchableOpacity>
-          {userDiaryEntries && (
+          {diaryEntriesData.diaryEntries && (
             <FlatList
               numColumns={2}
-              data={userDiaryEntries}
+              data={diaryEntriesData.diaryEntries}
               keyExtractor={(entry) => entry.id.toString()}
               removeClippedSubviews={false}
               contentContainerStyle={[
@@ -129,13 +147,13 @@ const DiaryEntries: React.FC = () => {
                         paddingBottom: 10,
                         paddingTop: 5,
                         marginRight:
-                          index !== userDiaryEntries.length - 1 &&
+                          index !== diaryEntriesData.diaryEntries.length - 1 &&
                           index % 2 === 0
                             ? 10
                             : 0,
                         marginLeft:
-                          userDiaryEntries.length % 2 !== 0 &&
-                          index !== userDiaryEntries.length - 1 &&
+                          diaryEntriesData!.diaryEntries.length % 2 !== 0 &&
+                          index !== diaryEntriesData.diaryEntries.length - 1 &&
                           index % 2 !== 0
                             ? 10
                             : 0,
@@ -149,8 +167,6 @@ const DiaryEntries: React.FC = () => {
                         content: diaryEntry.content,
                         publishDate: diaryEntry.registration.registrationDate,
                         isUpdate: true,
-                        userDiaryEntries,
-                        setUserDiaryEntries,
                       });
                     }}
                   >

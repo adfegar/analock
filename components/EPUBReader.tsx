@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Dimensions } from "react-native";
 import { useProcessEpub } from "../hooks/useProcessEpub";
 import RNFS from "react-native-fs";
@@ -9,7 +9,10 @@ import {
   getStorageBookData,
   getStorageUserData,
 } from "../services/storage.services";
-import { addUserBookRegistration } from "../services/activityRegistrations.services";
+import {
+  ActivityRegistration,
+  addUserBookRegistration,
+} from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import WebView, { WebViewMessageEvent } from "react-native-webview";
@@ -22,6 +25,7 @@ import {
 } from "react-native-gesture-handler";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { runOnJS } from "react-native-reanimated";
+import { ActivityRegistrationsContext } from "../contexts/activityRegistrationsContext";
 
 interface EpubReaderProps {
   ebookId: string;
@@ -52,11 +56,14 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     bookData !== undefined && bookData.finished,
   );
   const webViewRef = useRef<WebView>(null);
+  const activityRegistrationsContext = useContext(ActivityRegistrationsContext);
+
   useSaveOnExit({
     bookId: ebookId,
     currentPage: currentFilePage,
     finished: hasFinishedReading,
   });
+
   // Hook to set up the content that can be read
   useEffect(() => {
     if (htmlFiles.length > 0) {
@@ -83,7 +90,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
               },
             });
           })
-          .catch(err => console.error(`error loading the full HTML document: ${err}}`));
+          .catch((err) =>
+            console.error(`error loading the full HTML document: ${err}}`),
+          );
       }
     }
   }, [htmlFiles]);
@@ -96,7 +105,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     if (finishedReading && !bookData?.finished) {
       setHasFinishedReading(finishedReading);
 
-      if (userSettings.general.enableOnlineFeatures) {
+      if (
+        userSettings.general.enableOnlineFeatures &&
+        activityRegistrationsContext
+      ) {
         const currentDate = new Date();
         const userData = getStorageUserData();
         emptyDateTime(currentDate);
@@ -104,7 +116,25 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
           internetArchiveId: ebookId,
           registrationDate: currentDate.valueOf(),
           userId: userData.userId,
-        });
+        })
+          .then((savedBookRegistration) => {
+            // Update context adding saved book registration
+            const activityRegistrations: ActivityRegistration[] = [
+              savedBookRegistration,
+              ...activityRegistrationsContext.activityRegistrationsData
+                .activityRegistrations,
+            ];
+            activityRegistrationsContext.setActivityRegistrationsData({
+              activityRegistrations,
+              error: false,
+            });
+          })
+          .catch(() => {
+            activityRegistrationsContext.setActivityRegistrationsData({
+              activityRegistrations: [],
+              error: false,
+            });
+          });
       }
     }
   }, [currentFilePage]);
@@ -139,7 +169,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     </head>
     <body>
         <div class="content-wrapper">`;
-    const htmlTextRegex = /<script[^>]*>[\s\S]*?<\/script>|<style[^>]*>[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>/g;
+    const htmlTextRegex =
+      /<script[^>]*>[\s\S]*?<\/script>|<style[^>]*>[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>/g;
     const maxWords = AVERAGE_WORDS_PER_MINUTE * MAX_MINUTES;
     let currentWords = 0;
 
@@ -147,7 +178,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     for (let i = firstFileIndex; i < htmlFiles.length; i++) {
       const selectedItem = htmlFiles[i];
       // Add file content to body if file exists
-      const doesHtmlFileExist = await RNFS.exists(`${unzipPath}/${contentPath}${selectedItem.href}`)
+      const doesHtmlFileExist = await RNFS.exists(
+        `${unzipPath}/${contentPath}${selectedItem.href}`,
+      );
       if (doesHtmlFileExist) {
         const content = await RNFS.readFile(
           `${unzipPath}/${contentPath}${selectedItem.href}`,
@@ -162,7 +195,10 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         );
 
         // update word count
-        currentWords += content.replace(htmlTextRegex, "").trim().split(" ").length;
+        currentWords += content
+          .replace(htmlTextRegex, "")
+          .trim()
+          .split(" ").length;
 
         // Stop iterating when reached maximum words
         if (currentWords < maxWords) {
@@ -311,7 +347,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   return (
     <GestureHandlerRootView>
       <GestureDetector gesture={panGesture}>
-        <View style={[GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}>
+        <View
+          style={[GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}
+        >
           {loading && <LoadingIndicator />}
           {!loading && (
             <WebView

@@ -8,7 +8,7 @@ import {
   setStorageUserData,
 } from "../services/storage.services";
 import { setAccessToken } from "../constants/auth.constants";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserDataContext } from "../contexts/userDataContext";
 import { getUserByEmail } from "../services/user.services";
 import { BaseScreen } from "./BaseScreen";
@@ -16,15 +16,27 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { GoogleIcon } from "./icons/GoogleIcon";
 import { SettingsContext } from "../contexts/settingsContext";
 import { TranslationsContext } from "../contexts/translationsContext";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "./Home";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-interface LoginProps {
-  setAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
+const Login: React.FC = () => {
+  const navigation: NativeStackNavigationProp<RootStackParamList> =
+    useNavigation();
   const userDataContext = useContext(UserDataContext);
   const userSettingsContext = useContext(SettingsContext);
   const translationsContext = useContext(TranslationsContext);
+
+  // Hook to navigate back to Home if online features are disabled.
+  useEffect(() => {
+    if (
+      userSettingsContext &&
+      !userSettingsContext.settings.general.enableOnlineFeatures
+    ) {
+      navigation.navigate("Home");
+    }
+  }, [userSettingsContext]);
+
   return (
     translationsContext && (
       <BaseScreen>
@@ -44,7 +56,7 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
             style={[
               GENERAL_STYLES.whiteBackgroundColor,
               GENERAL_STYLES.loginSignInButton,
-              GENERAL_STYLES.mediumBorderWidth
+              GENERAL_STYLES.mediumBorderWidth,
             ]}
             onPress={() => {
               GoogleSignin.configure({
@@ -69,12 +81,14 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
                               // get user by email and save user's id on storage'
                               getUserByEmail(registerUserRequest.email)
                                 .then((user) => {
+                                  // update user data context
                                   const savedUserData = getStorageUserData();
                                   savedUserData.userId = user!.id;
                                   savedUserData.authenticated = true;
                                   setStorageUserData(savedUserData);
-                                  setAuthenticated(true);
                                   userDataContext?.setUserData(savedUserData);
+                                  // navigate back to home as authenticated
+                                  navigation.navigate("Home");
                                 })
                                 .catch((err) => {
                                   console.error(err);
@@ -131,11 +145,13 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
               }
             }}
           >
-            <Text style={[
-              GENERAL_STYLES.uiText,
-              GENERAL_STYLES.textBlack,
-              GENERAL_STYLES.textTitle
-            ]}>
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBlack,
+                GENERAL_STYLES.textTitle,
+              ]}
+            >
               {
                 translationsContext.translations.login
                   .continueWithoutOnlineFeatures
@@ -147,3 +163,5 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
     )
   );
 };
+
+export default Login;

@@ -1,4 +1,3 @@
-import { getIntervalUserDiaryEntries } from "./diaryEntries.services";
 import { AXIOS_INSTANCE } from "./interceptors";
 
 export type ActivityRegistration =
@@ -92,24 +91,12 @@ export async function getUserRegistrations(
       endDate,
     );
 
-    const diaryEntriesRequest = getIntervalUserDiaryEntries(
-      userId,
-      startDate,
-      endDate,
-    );
+    const [bookRegistrations, gameRegistrations] = await Promise.all([
+      bookRegistrationsRequest,
+      gameRegistrationsRequest,
+    ]);
 
-    const [bookRegistrations, gameRegistrations, diaryEntries] =
-      await Promise.all([
-        bookRegistrationsRequest,
-        gameRegistrationsRequest,
-        diaryEntriesRequest,
-      ]);
-
-    registrations.push(
-      ...bookRegistrations,
-      ...gameRegistrations,
-      ...diaryEntries,
-    );
+    registrations.push(...bookRegistrations, ...gameRegistrations);
   } catch {
     throw new Error();
   }
@@ -119,32 +106,43 @@ export async function getUserRegistrations(
 
 export async function addUserBookRegistration(
   request: AddBookRegistrationRequest,
-): Promise<void> {
+): Promise<BookRegistration | undefined> {
   const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/books`;
 
   try {
     const response = await AXIOS_INSTANCE.post(requestUrl, request);
 
-    if (response.status !== 200) {
-      console.error(response.data);
+    if (response.status === 200) {
+      return response.data as BookRegistration;
     }
+
+    console.error(
+      `error response took place saving book registration: ${response.data}`,
+    );
   } catch (err) {
     console.log(err);
   }
+
+  return undefined;
 }
 
 export async function addUserGameRegistration(
   request: AddGameRegistrationRequest,
-): Promise<void> {
+): Promise<GameRegistration | undefined> {
   const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/games`;
 
   try {
     const response = await AXIOS_INSTANCE.post(requestUrl, request);
 
-    if (response.status !== 200) {
-      console.error(response.data);
+    if (response.status === 200) {
+      return response.data as GameRegistration;
     }
+    console.error(
+      `error response took place saving game registration: ${response.data}`,
+    );
   } catch (err) {
     console.log(err);
   }
+
+  return undefined;
 }

@@ -44,7 +44,7 @@ AXIOS_INSTANCE.interceptors.response.use(
         if (navigationRef.isReady()) {
           navigationRef.resetRoot({
             index: 0,
-            routes: [{ name: "Home" }],
+            routes: [{ name: "Login" }],
           });
         }
       }

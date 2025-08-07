@@ -12,12 +12,12 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { CalendarIcon } from "./icons/CalendarIcon";
 import { SettingsIcon } from "./icons/SettingsIcon";
 import { ProfileCircleContainer } from "./ProfileCircleContainer";
-import { useGetUserActivityRegistrations } from "../hooks/useGetUserActivityRegistrations";
 import { formatString } from "../utils/string.utils";
 import Settings from "./Settings";
 import { SettingsContext } from "../contexts/settingsContext";
 import { NavigationHeader } from "./NavigationHeader";
 import { GamesIcon } from "./icons/GamesIcon";
+import { ActivityRegistrationsContext } from "../contexts/activityRegistrationsContext";
 
 export type MySpaceStackParamList = {
   MySpace: undefined;
@@ -71,13 +71,15 @@ function MySpace() {
   const profileTranslations =
     useContext(TranslationsContext)?.translations.profile;
   const userData = getStorageUserData();
-  const { userRegistrations, error } = useGetUserActivityRegistrations(
-    userData.userId,
-  );
   const [streak, setStreak] = useState<number>(0);
+  const userRegistrationsContext = useContext(ActivityRegistrationsContext);
 
   useEffect(() => {
-    if (userRegistrations.length > 0) {
+    if (
+      userRegistrationsContext &&
+      userRegistrationsContext.activityRegistrationsData.activityRegistrations
+        .length > 0
+    ) {
       const currentDate = new Date();
       let day = currentDate.getDate() - 1;
       let streak = 0;
@@ -91,7 +93,7 @@ function MySpace() {
         );
 
         if (
-          userRegistrations.filter(
+          userRegistrationsContext.activityRegistrationsData.activityRegistrations.filter(
             (registration) =>
               registration.registration.registrationDate === date.valueOf(),
           ).length >= MIN_ACTIVITY_NUMBER_FOR_STREAK
@@ -104,121 +106,124 @@ function MySpace() {
       }
       setStreak(streak);
     }
-  }, [userRegistrations]);
+  }, [userRegistrationsContext]);
 
   return (
-    <BaseScreen>
-      <View
-        style={[
-          GENERAL_STYLES.flexRow,
-          GENERAL_STYLES.alignCenter,
-          GENERAL_STYLES.flexGap,
-          { marginBottom: 20 },
-        ]}
-      >
-        <ProfileCircleContainer iconSize={64}>
-          <GamesIcon />
-        </ProfileCircleContainer>
-        <View style={[GENERAL_STYLES.flexCol, { alignSelf: "flex-start" }]}>
-          <Text
+    userRegistrationsContext && (
+      <BaseScreen>
+        <View
+          style={[
+            GENERAL_STYLES.flexRow,
+            GENERAL_STYLES.alignCenter,
+            GENERAL_STYLES.flexGap,
+            { marginBottom: 20 },
+          ]}
+        >
+          <ProfileCircleContainer iconSize={64}>
+            <GamesIcon />
+          </ProfileCircleContainer>
+          <View style={[GENERAL_STYLES.flexCol, { alignSelf: "flex-start" }]}>
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBlack,
+                GENERAL_STYLES.textExtraBig,
+              ]}
+            >
+              {userData.userName !== undefined ? userData.userName : "Guest"}
+            </Text>
+            {profileTranslations &&
+              !userRegistrationsContext.activityRegistrationsData.error &&
+              userSettingsContext?.settings.general.enableOnlineFeatures && (
+                <Text style={[GENERAL_STYLES.uiText]}>
+                  {formatString(profileTranslations.streak, streak)}
+                </Text>
+              )}
+          </View>
+        </View>
+        {!userRegistrationsContext.activityRegistrationsData.error &&
+          userSettingsContext?.settings.general.enableOnlineFeatures && (
+            <View>
+              <View style={{ marginBottom: 20 }}>
+                <Text
+                  style={[
+                    GENERAL_STYLES.uiText,
+                    GENERAL_STYLES.textBlack,
+                    GENERAL_STYLES.textTitle,
+                  ]}
+                >
+                  {profileTranslations?.weeklyProgress}
+                </Text>
+                <WeeklyActivityChart />
+              </View>
+            </View>
+          )}
+        <View style={[GENERAL_STYLES.flexRow, GENERAL_STYLES.flexGap]}>
+          <TouchableOpacity
+            onPressIn={() => {
+              navigation.push("Calendar");
+            }}
             style={[
-              GENERAL_STYLES.uiText,
-              GENERAL_STYLES.textBlack,
-              GENERAL_STYLES.textExtraBig,
+              GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
+              GENERAL_STYLES.smallPadding,
+              GENERAL_STYLES.flexGrow,
             ]}
           >
-            {userData.userName !== undefined ? userData.userName : "Guest"}
-          </Text>
-          {profileTranslations &&
-            !error &&
-            userSettingsContext?.settings.general.enableOnlineFeatures && (
-              <Text style={[GENERAL_STYLES.uiText]}>
-                {formatString(profileTranslations.streak, streak)}
+            <View
+              style={[
+                GENERAL_STYLES.flexRow,
+                GENERAL_STYLES.alignCenter,
+                GENERAL_STYLES.flexGapSmall,
+              ]}
+            >
+              <CalendarIcon />
+              <Text
+                style={[
+                  GENERAL_STYLES.uiText,
+                  GENERAL_STYLES.textBlack,
+                  GENERAL_STYLES.textBold,
+                  GENERAL_STYLES.alignCenter,
+                ]}
+              >
+                {profileTranslations?.calendar}
               </Text>
-            )}
-        </View>
-      </View>
-      {!error && userSettingsContext?.settings.general.enableOnlineFeatures && (
-        <View>
-          <View style={{ marginBottom: 20 }}>
-            <Text
-              style={[
-                GENERAL_STYLES.uiText,
-                GENERAL_STYLES.textBlack,
-                GENERAL_STYLES.textTitle,
-              ]}
-            >
-              {profileTranslations?.weeklyProgress}
-            </Text>
-            <WeeklyActivityChart userRegistrations={userRegistrations} />
-          </View>
-        </View>
-      )}
-      <View style={[GENERAL_STYLES.flexRow, GENERAL_STYLES.flexGap]}>
-        <TouchableOpacity
-          onPressIn={() => {
-            navigation.push("Calendar", { userRegistrations });
-          }}
-          style={[
-            GENERAL_STYLES.generalBorder,
-            GENERAL_STYLES.mediumBorderWidth,
-            GENERAL_STYLES.smallPadding,
-            GENERAL_STYLES.flexGrow,
-          ]}
-        >
-          <View
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPressIn={() => {
+              navigation.push("Settings");
+            }}
             style={[
-              GENERAL_STYLES.flexRow,
-              GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.flexGapSmall,
+              GENERAL_STYLES.generalBorder,
+              GENERAL_STYLES.mediumBorderWidth,
+              GENERAL_STYLES.smallPadding,
+              GENERAL_STYLES.flexGrow,
             ]}
           >
-            <CalendarIcon />
-            <Text
+            <View
               style={[
-                GENERAL_STYLES.uiText,
-                GENERAL_STYLES.textBlack,
-                GENERAL_STYLES.textBold,
+                GENERAL_STYLES.flexRow,
                 GENERAL_STYLES.alignCenter,
+                GENERAL_STYLES.flexGapSmall,
               ]}
             >
-              {profileTranslations?.calendar}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPressIn={() => {
-            navigation.push("Settings");
-          }}
-          style={[
-            GENERAL_STYLES.generalBorder,
-            GENERAL_STYLES.mediumBorderWidth,
-            GENERAL_STYLES.smallPadding,
-            GENERAL_STYLES.flexGrow,
-          ]}
-        >
-          <View
-            style={[
-              GENERAL_STYLES.flexRow,
-              GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.flexGapSmall,
-            ]}
-          >
-            <SettingsIcon />
-            <Text
-              style={[
-                GENERAL_STYLES.uiText,
-                GENERAL_STYLES.textBlack,
-                GENERAL_STYLES.textBold,
-                GENERAL_STYLES.alignCenter,
-              ]}
-            >
-              {profileTranslations?.settings}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    </BaseScreen>
+              <SettingsIcon />
+              <Text
+                style={[
+                  GENERAL_STYLES.uiText,
+                  GENERAL_STYLES.textBlack,
+                  GENERAL_STYLES.textBold,
+                  GENERAL_STYLES.alignCenter,
+                ]}
+              >
+                {profileTranslations?.settings}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </BaseScreen>
+    )
   );
 }
 
