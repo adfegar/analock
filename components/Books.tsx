@@ -2,23 +2,29 @@ import {
   useOpenLibraryBooksBySubject,
   useOpenLibraryBooksBySubjectResult,
 } from "../hooks/useOpenLibraryBooksBySubject";
-import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { ErrorScreen } from "./ErrorScreen";
-import { getStorageBooks, getStorageUserData } from "../services/storage.services";
+import { getStorageUserData } from "../services/storage.services";
 import { BookSubjectSelection } from "./BookSubjectSelection";
 import { NavigationHeader } from "./NavigationHeader";
 import { FlatListCard } from "./FlatListCard";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { BooksIcon } from "./icons/BooksIcon";
 import { colorGreen, colorWhiteBackground } from "../constants/constants";
-import { ActivityCompletionContext, ActivityKind } from "../contexts/activityCompletionContext";
+import {
+  ActivityCompletionContext,
+  ActivityKind,
+} from "../contexts/activityCompletionContext";
 
 const BOOK_NUMBER = 2;
 
@@ -63,15 +69,15 @@ const BooksScreen = () => {
   const BooksStack = createNativeStackNavigator();
   const translations = useContext(TranslationsContext)?.translations.home;
   return (
-    <BooksStack.Navigator
-      initialRouteName="Books"
-    >
+    <BooksStack.Navigator initialRouteName="Books">
       <BooksStack.Screen
         name="Books"
         component={BooksWrapper}
         options={{
           headerTitle: translations?.books,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={true} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={true} />
+          ),
         }}
       />
       <BooksStack.Screen
@@ -79,7 +85,9 @@ const BooksScreen = () => {
         component={BookDetailScreen}
         options={({ route }) => ({
           headerTitle: route.params?.title as string,
-          header: (props) => <NavigationHeader {...props} primaryHeaderStyle={false} />
+          header: (props) => (
+            <NavigationHeader {...props} primaryHeaderStyle={false} />
+          ),
         })}
       />
     </BooksStack.Navigator>
@@ -105,7 +113,7 @@ const BooksWrapper: React.FC = () => {
       for (let i = 0; i < MAX_SUBJECTS; i++) {
         const randomIndex = Math.floor(Math.random() * subjectValues.length);
         selectedSubjects.push(subjectValues[randomIndex]);
-        subjectValues.splice(randomIndex, 1)
+        subjectValues.splice(randomIndex, 1);
       }
       setShownSubjects(selectedSubjects);
     }
@@ -124,28 +132,29 @@ const BooksWrapper: React.FC = () => {
 
 const Books: React.FC<BooksProps> = ({ subject }) => {
   const [loading, setLoading] = useState<boolean>(true);
-  const openLibraryResponse: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
-    subject,
-    sort: "rating desc",
-    limit: BOOK_NUMBER,
-  });
+  const openLibraryResponse: useOpenLibraryBooksBySubjectResult =
+    useOpenLibraryBooksBySubject({
+      subject,
+      sort: "rating desc",
+      limit: BOOK_NUMBER,
+    });
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const translationsContext = useContext(TranslationsContext);
   const navigation: NativeStackNavigationProp<BookStackParamList> =
     useNavigation();
-  const activityCompletionContext = useContext(ActivityCompletionContext)
+  const activityCompletionContext = useContext(ActivityCompletionContext);
 
   /**
    * Aux function to perform download of books returned by Internet Archive response.
    */
   async function downloadBooks(): Promise<void> {
     if (openLibraryResponse.openLibraryBooksBySubject) {
-      const bookDownloadPromises: Promise<void>[] = []
+      const bookDownloadPromises: Promise<void>[] = [];
       for (const book of openLibraryResponse.openLibraryBooksBySubject) {
-        bookDownloadPromises.push(downloadAndUnzipEpub(book))
+        bookDownloadPromises.push(downloadAndUnzipEpub(book));
       }
       try {
-        await Promise.all(bookDownloadPromises)
+        await Promise.all(bookDownloadPromises);
       } catch {
         setErrorMessage(
           translationsContext?.translations.errors.genericNetworkError,
@@ -153,9 +162,9 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
         setLoading(false);
       }
     }
-  };
+  }
 
-  // Hook to start downloading process with the books given by Internet Archive  
+  // Hook to start downloading process with the books given by Internet Archive
   useEffect(() => {
     if (loading) {
       if (!openLibraryResponse.error) {
@@ -199,40 +208,64 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
                   <FlatListCard
                     flatListIndex={index}
                     onPress={() => {
-                      navigation.push("Book",
-                        {
-                          id: item.identifier,
-                          title: item.title
-                        }
-                      );
+                      navigation.push("Book", {
+                        id: item.identifier,
+                        title: item.title,
+                      });
                     }}
                   >
-                    <View style={[
-                      GENERAL_STYLES.defaultBorder,
-                      GENERAL_STYLES.defaultBorderWidth,
-                      GENERAL_STYLES.alignCenter,
-                      GENERAL_STYLES.borderRadiusBig,
-                      GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding,
-                      {
-                        backgroundColor: activityCompletionContext !== null
-                          && (activityCompletionContext.activityCompletionMap.get(ActivityKind.Book) as StorageBook[])?.find(bookData => bookData.id === item.identifier)?.data?.finished
-                          ? colorGreen
-                          : colorWhiteBackground
-                      }
-                    ]}>
+                    <View
+                      style={[
+                        GENERAL_STYLES.defaultBorder,
+                        GENERAL_STYLES.defaultBorderWidth,
+                        GENERAL_STYLES.alignCenter,
+                        GENERAL_STYLES.borderRadiusBig,
+                        GENERAL_STYLES.tenPercentWindowHeigthVerticalPadding,
+                        {
+                          backgroundColor:
+                            activityCompletionContext !== null &&
+                            (
+                              activityCompletionContext.activityCompletionMap.get(
+                                ActivityKind.Book,
+                              ) as StorageBook[]
+                            )?.find(
+                              (bookData) => bookData.id === item.identifier,
+                            )?.data?.finished
+                              ? colorGreen
+                              : colorWhiteBackground,
+                        },
+                      ]}
+                    >
                       <BooksIcon />
                     </View>
-                    <View style={[
-                      GENERAL_STYLES.flexCol,
-                      GENERAL_STYLES.flexGapExtraSmall,
-                      GENERAL_STYLES.alignCenter,
-                      GENERAL_STYLES.justifyCenter,
-                    ]}>
-                      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack, GENERAL_STYLES.textBold]} numberOfLines={1}>
+                    <View
+                      style={[
+                        GENERAL_STYLES.flexCol,
+                        GENERAL_STYLES.flexGapExtraSmall,
+                        GENERAL_STYLES.alignCenter,
+                        GENERAL_STYLES.justifyCenter,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          GENERAL_STYLES.uiText,
+                          GENERAL_STYLES.textBlack,
+                          GENERAL_STYLES.textBold,
+                        ]}
+                        numberOfLines={1}
+                      >
                         {item.title}
                       </Text>
-                      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]} numberOfLines={1}>
-                        {item.creator ? item.creator : translationsContext.translations.books.noAuthor}
+                      <Text
+                        style={[
+                          GENERAL_STYLES.uiText,
+                          GENERAL_STYLES.textBlack,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {item.creator
+                          ? item.creator
+                          : translationsContext.translations.books.noAuthor}
                       </Text>
                     </View>
                   </FlatListCard>
@@ -240,7 +273,7 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
                 contentContainerStyle={[
                   GENERAL_STYLES.baseScreenPadding,
                   GENERAL_STYLES.whiteBackgroundColor,
-                  GENERAL_STYLES.flexGrow
+                  GENERAL_STYLES.flexGrow,
                 ]}
                 removeClippedSubviews={false}
               />

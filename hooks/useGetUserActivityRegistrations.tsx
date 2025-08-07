@@ -7,29 +7,43 @@ import { SettingsContext } from "../contexts/settingsContext";
 
 interface GetUserActivityRegistrationsResponse {
   userRegistrations: ActivityRegistration[];
-  error: boolean;
+  setUserRegistrations: React.Dispatch<
+    React.SetStateAction<ActivityRegistration[]>
+  >;
+  userRegistrationsError: boolean;
 }
 
+/**
+ * Hook to get user activity registrations.
+ *
+ * @param userId the user's identifier
+ * @param authenticated boolean indicating whether the user is authenticated
+ * @param startDate the start date to search
+ * @param endDate the end date to search
+ * @returns the registrations and error state
+ */
 export function useGetUserActivityRegistrations(
   userId: number,
+  authenticated: boolean,
   startDate?: number,
   endDate?: number,
 ): GetUserActivityRegistrationsResponse {
   const [userRegistrations, setUserRegistrations] = useState<
     ActivityRegistration[]
   >([]);
-  const [error, setError] = useState<boolean>(false);
+  const [userRegistrationsError, setUserRegistrationsError] =
+    useState<boolean>(false);
   const settings = useContext(SettingsContext)?.settings;
 
   useEffect(() => {
-    if (settings?.general.enableOnlineFeatures) {
+    if (authenticated && settings && settings.general.enableOnlineFeatures) {
       getUserRegistrations(userId, startDate, endDate)
         .then((registrations) => {
           setUserRegistrations(registrations);
         })
-        .catch(() => setError(true));
+        .catch(() => setUserRegistrationsError(true));
     }
   }, []);
 
-  return { userRegistrations, error };
+  return { userRegistrations, setUserRegistrations, userRegistrationsError };
 }

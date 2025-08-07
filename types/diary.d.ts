@@ -5,6 +5,11 @@ interface DiaryEntry {
   registration: Registration;
 }
 
+interface DiaryEntriesData {
+  diaryEntries: DiaryEntry[];
+  error?: string;
+}
+
 interface AddDiaryEntryRequest {
   title: string;
   content: string;
