@@ -18,7 +18,19 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { SettingsContext } from "../contexts/settingsContext";
 import { View } from "react-native";
 import { RegistrationCircle } from "./RegistrationCircle";
-import { colorBlack, colorBlue, colorGreen, colorPink, colorPurple, colorWhiteBackground } from "../constants/constants";
+import {
+  colorBlack,
+  colorBlue,
+  colorGreen,
+  colorPink,
+  colorPurple,
+  colorWhiteBackground,
+} from "../constants/constants";
+import { ActivityRegistrationsContext } from "../contexts/activityRegistrationsContext";
+import {
+  ActivityCompletionContext,
+  ActivityKind,
+} from "../contexts/activityCompletionContext";
 
 interface Dot {
   key: string;
@@ -31,25 +43,27 @@ interface ShownObject {
   color: string;
 }
 
-export const CalendarScreen: React.FC = ({ route }) => {
+export const CalendarScreen: React.FC = () => {
   const userSettings = getSettings();
-  const { userRegistrations } = route.params;
 
   return userSettings && userSettings.general.enableOnlineFeatures ? (
-    <RegistrationsCalendar userRegistrations={userRegistrations} />
+    <RegistrationsCalendar />
   ) : (
     <OnlineFeaturesDisclaimer />
   );
 };
 
-interface RegistrationsCalendarProps {
-  userRegistrations: ActivityRegistration[];
-}
-const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
-  userRegistrations,
-}) => {
-  const books: Dot = { key: "book", color: colorGreen, selectedDotColor: "blue" };
-  const games: Dot = { key: "game", color: colorPink, selectedDotColor: "blue" };
+const RegistrationsCalendar: React.FC = () => {
+  const books: Dot = {
+    key: "book",
+    color: colorGreen,
+    selectedDotColor: "blue",
+  };
+  const games: Dot = {
+    key: "game",
+    color: colorPink,
+    selectedDotColor: "blue",
+  };
   const diaryEntries: Dot = {
     key: "diaryEntry",
     color: colorPurple,
@@ -64,6 +78,8 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
     ShownObject[]
   >([]);
   const settings = useContext(SettingsContext)?.settings;
+  const activityRegistrationsContext = useContext(ActivityRegistrationsContext);
+  const activityCompletionContext = useContext(ActivityCompletionContext);
 
   /**
    * Aux function to get the dots object from a registration object
@@ -112,52 +128,75 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
 
     return text;
   }
+  const [fullActivityRegistrations, setFullActivityRegistrations] = useState<
+    ActivityRegistration[]
+  >([]);
+
+  useEffect(() => {
+    if (activityCompletionContext && activityRegistrationsContext) {
+      setFullActivityRegistrations(
+        [
+          ...activityRegistrationsContext.activityRegistrationsData
+            .activityRegistrations,
+        ].concat(
+          (
+            activityCompletionContext.activityCompletionMap.get(
+              ActivityKind.Diary,
+            ) as DiaryEntriesData
+          ).diaryEntries,
+        ),
+      );
+    }
+  }, []);
 
   // Hook to mark the registrations on calendar of the current month
   useEffect(() => {
-    const startDate = new Date(
-      currentDateData.year,
-      currentDateData.month - 1,
-      1,
-      0,
-      0,
-      0,
-    );
-    let endDate: Date;
-    if (
-      areDatesEqual(currentDate, timestampToDate(currentDateData.timestamp))
-    ) {
-      emptyDateTime(currentDate);
-      endDate = currentDate;
-    } else {
-      endDate = new Date(currentDateData.year, currentDateData.month);
-    }
-    const updatedMarkedDates: MarkedDates = {};
-    const monthUserRegistrations = userRegistrations.filter(
-      (userRegistration) =>
-        userRegistration.registration.registrationDate >= startDate.valueOf() &&
-        userRegistration.registration.registrationDate <= endDate.valueOf(),
-    );
-
-    for (const userRegistration of monthUserRegistrations) {
-      const registrationDate = new Date(
-        userRegistration.registration.registrationDate,
+    if (fullActivityRegistrations) {
+      const startDate = new Date(
+        currentDateData.year,
+        currentDateData.month - 1,
+        1,
+        0,
+        0,
+        0,
       );
-      const dateToBeUpdated =
-        updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)];
-      const dot = getDotsFromRegistrationObject(userRegistration);
-      console.log(dot);
-
-      if (dateToBeUpdated !== undefined) {
-        dateToBeUpdated.dots = [...dateToBeUpdated.dots!, dot];
+      let endDate: Date;
+      if (
+        areDatesEqual(currentDate, timestampToDate(currentDateData.timestamp))
+      ) {
+        emptyDateTime(currentDate);
+        endDate = currentDate;
       } else {
-        updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)] = {
-          dots: [dot],
-        };
+        endDate = new Date(currentDateData.year, currentDateData.month);
       }
+      const updatedMarkedDates: MarkedDates = {};
+      const monthUserRegistrations = fullActivityRegistrations.filter(
+        (userRegistration) =>
+          userRegistration.registration.registrationDate >=
+            startDate.valueOf() &&
+          userRegistration.registration.registrationDate <= endDate.valueOf(),
+      );
+
+      for (const userRegistration of monthUserRegistrations) {
+        const registrationDate = new Date(
+          userRegistration.registration.registrationDate,
+        );
+        const dateToBeUpdated =
+          updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)];
+        const dot = getDotsFromRegistrationObject(userRegistration);
+        console.log(dot);
+
+        if (dateToBeUpdated !== undefined) {
+          dateToBeUpdated.dots = [...dateToBeUpdated.dots!, dot];
+        } else {
+          updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)] = {
+            dots: [dot],
+          };
+        }
+      }
+      setMarkedDates(updatedMarkedDates);
     }
-    setMarkedDates(updatedMarkedDates);
-  }, [currentDateData]);
+  }, [currentDateData, fullActivityRegistrations]);
 
   console.log(
     `current date data: ${currentDateData.month}, current date: ${currentDate.getMonth()}`,
@@ -184,7 +223,7 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
           markingType="multi-dot"
           markedDates={markedDates}
           disableArrowLeft={isCalendarOnOldestRegistration(
-            userRegistrations,
+            fullActivityRegistrations,
             currentDateData,
           )}
           disableArrowRight={
@@ -201,11 +240,12 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
 
             if (selectedMarkedDate !== undefined) {
               const shownObjects: ShownObject[] = [];
-              const selectedDayUserRegistrations = userRegistrations.filter(
-                (userRegistration) =>
-                  userRegistration.registration.registrationDate ===
-                  selectedDate.valueOf(),
-              );
+              const selectedDayUserRegistrations =
+                fullActivityRegistrations.filter(
+                  (userRegistration) =>
+                    userRegistration.registration.registrationDate ===
+                    selectedDate.valueOf(),
+                );
 
               for (const userRegistration of selectedDayUserRegistrations) {
                 const dots = getDotsFromRegistrationObject(userRegistration);
@@ -232,7 +272,9 @@ const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
                 ]}
               >
                 <RegistrationCircle color={registration.color} />
-                <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>{registration.text}</Text>
+                <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
+                  {registration.text}
+                </Text>
               </View>
             ))}
           </View>

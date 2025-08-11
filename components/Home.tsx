@@ -31,8 +31,9 @@ import { GamesData } from "../types/game";
 import ProfileIlustration from "./icons/ProfileIlustration";
 import DiaryIllustration from "./icons/DiaryIllustration";
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
+  Login: undefined;
   BooksScreen: undefined;
   MySpaceScreen: undefined;
   GamesScreen: undefined;
@@ -58,9 +59,6 @@ const Home: React.FC = () => {
   );
   const navigation: NativeStackNavigationProp<RootStackParamList> =
     useNavigation();
-  const [authenticated, setAuthenticated] = useState<boolean>(
-    getStorageUserData().authenticated,
-  );
   const translationsContext = useContext(TranslationsContext);
   const settingsContext = useContext(SettingsContext);
   const activityCompletionContext = useContext(ActivityCompletionContext);
@@ -76,8 +74,9 @@ const Home: React.FC = () => {
       ) as GamesData[];
       const diaryData = activityCompletionContext.activityCompletionMap.get(
         ActivityKind.Diary,
-      ) as DiaryEntry[];
+      ) as DiaryEntriesData;
       const updatedActivityCompletionMap = new Map(activityCompletionMap);
+
       if (bookData && bookData.length > 0) {
         updatedActivityCompletionMap.set(
           ActivityKind.Book,
@@ -86,6 +85,7 @@ const Home: React.FC = () => {
           ),
         );
       }
+
       if (gameData && gameData.length > 0) {
         updatedActivityCompletionMap.set(
           ActivityKind.Game,
@@ -93,10 +93,10 @@ const Home: React.FC = () => {
         );
       }
 
-      if (diaryData && diaryData.length > 0) {
+      if (diaryData && diaryData.diaryEntries.length > 0) {
         updatedActivityCompletionMap.set(
           ActivityKind.Diary,
-          diaryData.some((diaryEntry) =>
+          diaryData.diaryEntries.some((diaryEntry) =>
             areDatesEqual(
               new Date(),
               new Date(diaryEntry.registration.registrationDate),
@@ -133,7 +133,6 @@ const Home: React.FC = () => {
   }
 
   const { translations } = translationsContext;
-  const { settings } = settingsContext;
 
   const homeSections: ContentCardData[] = [
     {
@@ -161,7 +160,7 @@ const Home: React.FC = () => {
     },
   ];
 
-  return authenticated || !settings.general.enableOnlineFeatures ? (
+  return (
     <View
       style={[GENERAL_STYLES.flexGrow, GENERAL_STYLES.whiteBackgroundColor]}
     >
@@ -232,8 +231,6 @@ const Home: React.FC = () => {
         />
       </BaseScreen>
     </View>
-  ) : (
-    <Login setAuthenticated={setAuthenticated} />
   );
 };
 
