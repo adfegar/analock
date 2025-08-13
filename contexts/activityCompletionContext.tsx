@@ -65,6 +65,7 @@ export const ActivityCompletionProvider: React.FC<AuthInfoProviderProps> = ({
       userDataContext &&
       userDataContext.userData.authenticated
     ) {
+      console.log(userDataContext.userData.authenticated);
       const userData = getStorageUserData();
       getIntervalUserDiaryEntries(userData.userId)
         .then((diaryEntries) => {

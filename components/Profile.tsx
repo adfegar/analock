@@ -142,7 +142,8 @@ function MySpace() {
           </View>
         </View>
         {!userRegistrationsContext.activityRegistrationsData.error &&
-          userSettingsContext?.settings.general.enableOnlineFeatures && (
+          userSettingsContext &&
+          userSettingsContext.settings.general.enableOnlineFeatures && (
             <View>
               <View style={{ marginBottom: 20 }}>
                 <Text

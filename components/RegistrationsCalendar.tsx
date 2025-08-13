@@ -44,9 +44,10 @@ interface ShownObject {
 }
 
 export const CalendarScreen: React.FC = () => {
-  const userSettings = getSettings();
+  const settingsContext = useContext(SettingsContext);
 
-  return userSettings && userSettings.general.enableOnlineFeatures ? (
+  return settingsContext &&
+    settingsContext.settings.general.enableOnlineFeatures ? (
     <RegistrationsCalendar />
   ) : (
     <OnlineFeaturesDisclaimer />
