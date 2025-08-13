@@ -1,8 +1,6 @@
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { BackHandler, FlatList, StatusBar, Text, View } from "react-native";
 import { useContext, useEffect, useState } from "react";
-import { Login } from "./Login";
-import { getStorageUserData } from "../services/storage.services";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
 import { SettingsContext } from "../contexts/settingsContext";
@@ -30,6 +28,7 @@ import {
 import { GamesData } from "../types/game";
 import ProfileIlustration from "./icons/ProfileIlustration";
 import DiaryIllustration from "./icons/DiaryIllustration";
+import { UserDataContext } from "../contexts/userDataContext";
 
 export type RootStackParamList = {
   Home: undefined;
@@ -63,6 +62,19 @@ const Home: React.FC = () => {
   const settingsContext = useContext(SettingsContext);
   const activityCompletionContext = useContext(ActivityCompletionContext);
   useWipePeriodicContent();
+  const userDataContext = useContext(UserDataContext);
+  console.log(`api root url: ${process.env.API_ROOT_URL}`);
+  // Hook to redirect to login if user is not authenticated and online features are enabled
+  useEffect(() => {
+    if (
+      userDataContext &&
+      !userDataContext.userData.authenticated &&
+      settingsContext &&
+      settingsContext.settings.general.enableOnlineFeatures
+    ) {
+      navigation.push("Login");
+    }
+  }, [settingsContext]);
 
   useEffect(() => {
     if (activityCompletionContext) {
