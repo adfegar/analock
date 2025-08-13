@@ -1,20 +1,5 @@
 import { AXIOS_INSTANCE } from "./interceptors";
 
-export async function getUserDiaryEntries(
-  userId: number,
-): Promise<DiaryEntry[]> {
-  const getDiaryEntriesUrl = `http://localhost:3000/api/v1/diaryEntries/user/${userId}`;
-  let userDiaryEntries: DiaryEntry[] = [];
-
-  const userDiaryEntriesResponse = await AXIOS_INSTANCE.get(getDiaryEntriesUrl);
-
-  if (userDiaryEntriesResponse.status === 200) {
-    userDiaryEntries = userDiaryEntriesResponse.data as DiaryEntry[];
-  }
-
-  return userDiaryEntries;
-}
-
 export async function getIntervalUserDiaryEntries(
   userId: number,
   startDate?: number,

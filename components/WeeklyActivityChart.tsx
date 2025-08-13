@@ -51,9 +51,17 @@ export const WeeklyActivityChart: React.FC = () => {
   const activityRegistrationsContext = useContext(ActivityRegistrationsContext);
   const activityCompletionContext = useContext(ActivityCompletionContext);
 
+  console.log(activityRegistrationsContext?.activityRegistrationsData.error);
+
   // Hook to load user's weekly activity
   useEffect(() => {
-    if (activityRegistrationsContext && activityCompletionContext) {
+    if (
+      activityRegistrationsContext &&
+      activityRegistrationsContext.activityRegistrationsData
+        .activityRegistrations.length > 0 &&
+      activityCompletionContext &&
+      activityCompletionContext.activityCompletionMap.size > 0
+    ) {
       const currentDate = new Date();
       const firstDayOfWeek =
         settings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY
