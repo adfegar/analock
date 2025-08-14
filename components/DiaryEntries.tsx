@@ -81,7 +81,7 @@ const DiaryEntries: React.FC = () => {
           ActivityKind.Diary,
         ) as DiaryEntriesData;
 
-      if (diaryEntriesData?.diaryEntries.length > 0) {
+      if (diaryEntriesData.diaryEntries) {
         setLoading(false);
       }
       setDiaryEntriesData(diaryEntriesData);
@@ -99,7 +99,7 @@ const DiaryEntries: React.FC = () => {
       {loading ? (
         <LoadingIndicator />
       ) : (
-        <SafeAreaView>
+        <SafeAreaView style={[GENERAL_STYLES.flexGrow]}>
           <TouchableOpacity
             disabled={isAddDiaryEntryButtonDisabled(
               diaryEntriesData.diaryEntries,
