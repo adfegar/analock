@@ -177,7 +177,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     borderRadius: 10,
     position: "absolute",
     bottom: 40,
-    right: 30,
+    right: 20,
     alignItems: "center",
     justifyContent: "center",
     elevation: 10,

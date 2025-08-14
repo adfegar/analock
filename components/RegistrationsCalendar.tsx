@@ -1,5 +1,4 @@
 import { DateData, MarkedDates } from "react-native-calendars/src/types";
-import { getSettings } from "../services/storage.services";
 import { useContext, useEffect, useState } from "react";
 import {
   areDatesEqual,
