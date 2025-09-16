@@ -107,7 +107,9 @@ export function Game2048() {
   }
 
   function initializeScore(): number {
-    return ttfeGameData ? (ttfeGameData.data as TTFEGameData).ttfeScore : 0;
+    return ttfeGameData && ttfeGameData.data
+      ? (ttfeGameData.data as TTFEGameData).ttfeScore
+      : 0;
   }
 
   /**
